@@ -1,0 +1,3760 @@
+{
+  "data": {
+    "__schema": {
+      "types": [
+        {
+          "description": null,
+          "enumValues": [
+            {
+              "description": null,
+              "name": "hour"
+            },
+            {
+              "description": null,
+              "name": "day"
+            }
+          ],
+          "fields": null,
+          "inputFields": null,
+          "kind": "ENUM",
+          "name": "Aggregation_interval"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": null,
+          "inputFields": null,
+          "kind": "SCALAR",
+          "name": "BigDecimal"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": null,
+          "inputFields": null,
+          "kind": "SCALAR",
+          "name": "BigInt"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "description": null,
+              "name": "number_gte",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null
+              }
+            }
+          ],
+          "kind": "INPUT_OBJECT",
+          "name": "BlockChangedFilter"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "description": null,
+              "name": "hash",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "number",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int"
+              }
+            },
+            {
+              "description": null,
+              "name": "number_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int"
+              }
+            }
+          ],
+          "kind": "INPUT_OBJECT",
+          "name": "Block_height"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": null,
+          "inputFields": null,
+          "kind": "SCALAR",
+          "name": "Boolean"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": null,
+          "inputFields": null,
+          "kind": "SCALAR",
+          "name": "Bytes"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": null,
+          "inputFields": null,
+          "kind": "SCALAR",
+          "name": "Float"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": null,
+          "inputFields": null,
+          "kind": "SCALAR",
+          "name": "ID"
+        },
+        {
+          "description": "4 bytes signed integer\n",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": null,
+          "kind": "SCALAR",
+          "name": "Int"
+        },
+        {
+          "description": "8 bytes signed integer\n",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": null,
+          "kind": "SCALAR",
+          "name": "Int8"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": [
+            {
+              "description": null,
+              "name": "id",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "totalAllocPoint",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "BigInt"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "undistributedCake",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "BigInt"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "lastHarvestBlock",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "BigInt"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "latestPeriodStartTime",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "BigInt"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "latestPeriodEndTime",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "BigInt"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "latestPeriodCakePerSecond",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "BigInt"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "latestPeriodCakeAmount",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "BigInt"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "periodDuration",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "BigInt"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "pools",
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "poolCount",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "BigInt"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "timestamp",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "BigInt"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "block",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "BigInt"
+                }
+              }
+            }
+          ],
+          "inputFields": null,
+          "kind": "OBJECT",
+          "name": "MasterChef"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "description": null,
+              "name": "id",
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "id_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "totalAllocPoint",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "totalAllocPoint_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "totalAllocPoint_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "totalAllocPoint_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "totalAllocPoint_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "totalAllocPoint_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "totalAllocPoint_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "totalAllocPoint_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "undistributedCake",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "undistributedCake_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "undistributedCake_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "undistributedCake_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "undistributedCake_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "undistributedCake_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "undistributedCake_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "undistributedCake_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "lastHarvestBlock",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "lastHarvestBlock_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "lastHarvestBlock_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "lastHarvestBlock_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "lastHarvestBlock_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "lastHarvestBlock_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "lastHarvestBlock_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "lastHarvestBlock_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "latestPeriodStartTime",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "latestPeriodStartTime_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "latestPeriodStartTime_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "latestPeriodStartTime_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "latestPeriodStartTime_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "latestPeriodStartTime_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "latestPeriodStartTime_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "latestPeriodStartTime_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "latestPeriodEndTime",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "latestPeriodEndTime_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "latestPeriodEndTime_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "latestPeriodEndTime_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "latestPeriodEndTime_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "latestPeriodEndTime_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "latestPeriodEndTime_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "latestPeriodEndTime_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "latestPeriodCakePerSecond",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "latestPeriodCakePerSecond_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "latestPeriodCakePerSecond_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "latestPeriodCakePerSecond_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "latestPeriodCakePerSecond_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "latestPeriodCakePerSecond_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "latestPeriodCakePerSecond_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "latestPeriodCakePerSecond_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "latestPeriodCakeAmount",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "latestPeriodCakeAmount_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "latestPeriodCakeAmount_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "latestPeriodCakeAmount_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "latestPeriodCakeAmount_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "latestPeriodCakeAmount_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "latestPeriodCakeAmount_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "latestPeriodCakeAmount_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "periodDuration",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "periodDuration_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "periodDuration_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "periodDuration_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "periodDuration_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "periodDuration_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "periodDuration_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "periodDuration_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "pools_",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "Pool_filter"
+              }
+            },
+            {
+              "description": null,
+              "name": "poolCount",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "poolCount_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "poolCount_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "poolCount_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "poolCount_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "poolCount_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "poolCount_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "poolCount_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "timestamp",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "timestamp_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "timestamp_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "timestamp_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "timestamp_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "timestamp_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "timestamp_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "timestamp_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "block",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "block_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "block_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "block_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "block_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "block_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "block_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "block_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": "Filter for the block changed event.",
+              "name": "_change_block",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "BlockChangedFilter"
+              }
+            },
+            {
+              "description": null,
+              "name": "and",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "or",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            }
+          ],
+          "kind": "INPUT_OBJECT",
+          "name": "MasterChef_filter"
+        },
+        {
+          "description": null,
+          "enumValues": [
+            {
+              "description": null,
+              "name": "id"
+            },
+            {
+              "description": null,
+              "name": "totalAllocPoint"
+            },
+            {
+              "description": null,
+              "name": "undistributedCake"
+            },
+            {
+              "description": null,
+              "name": "lastHarvestBlock"
+            },
+            {
+              "description": null,
+              "name": "latestPeriodStartTime"
+            },
+            {
+              "description": null,
+              "name": "latestPeriodEndTime"
+            },
+            {
+              "description": null,
+              "name": "latestPeriodCakePerSecond"
+            },
+            {
+              "description": null,
+              "name": "latestPeriodCakeAmount"
+            },
+            {
+              "description": null,
+              "name": "periodDuration"
+            },
+            {
+              "description": null,
+              "name": "pools"
+            },
+            {
+              "description": null,
+              "name": "poolCount"
+            },
+            {
+              "description": null,
+              "name": "timestamp"
+            },
+            {
+              "description": null,
+              "name": "block"
+            }
+          ],
+          "fields": null,
+          "inputFields": null,
+          "kind": "ENUM",
+          "name": "MasterChef_orderBy"
+        },
+        {
+          "description": "Defines the order direction, either ascending or descending",
+          "enumValues": [
+            {
+              "description": null,
+              "name": "asc"
+            },
+            {
+              "description": null,
+              "name": "desc"
+            }
+          ],
+          "fields": null,
+          "inputFields": null,
+          "kind": "ENUM",
+          "name": "OrderDirection"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": [
+            {
+              "description": null,
+              "name": "id",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "masterChef",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "MasterChef"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "v3Pool",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Bytes"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "allocPoint",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "BigInt"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "totalUsersCount",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "BigInt"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "userCount",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "BigInt"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "timestamp",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "BigInt"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "block",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "BigInt"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "userPositions",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null
+                }
+              }
+            }
+          ],
+          "inputFields": null,
+          "kind": "OBJECT",
+          "name": "Pool"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "description": null,
+              "name": "id",
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "id_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "masterChef",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "masterChef_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "masterChef_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "masterChef_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "masterChef_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "masterChef_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "masterChef_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "masterChef_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "masterChef_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "masterChef_contains_nocase",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "masterChef_not_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "masterChef_not_contains_nocase",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "masterChef_starts_with",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "masterChef_starts_with_nocase",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "masterChef_not_starts_with",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "masterChef_not_starts_with_nocase",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "masterChef_ends_with",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "masterChef_ends_with_nocase",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "masterChef_not_ends_with",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "masterChef_not_ends_with_nocase",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "masterChef_",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "MasterChef_filter"
+              }
+            },
+            {
+              "description": null,
+              "name": "v3Pool",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "v3Pool_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "v3Pool_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "v3Pool_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "v3Pool_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "v3Pool_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "v3Pool_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "v3Pool_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "v3Pool_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "v3Pool_not_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "allocPoint",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "allocPoint_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "allocPoint_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "allocPoint_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "allocPoint_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "allocPoint_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "allocPoint_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "allocPoint_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "totalUsersCount",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "totalUsersCount_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "totalUsersCount_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "totalUsersCount_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "totalUsersCount_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "totalUsersCount_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "totalUsersCount_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "totalUsersCount_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "userCount",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "userCount_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "userCount_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "userCount_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "userCount_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "userCount_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "userCount_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "userCount_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "timestamp",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "timestamp_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "timestamp_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "timestamp_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "timestamp_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "timestamp_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "timestamp_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "timestamp_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "block",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "block_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "block_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "block_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "block_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "block_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "block_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "block_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "userPositions_",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "UserPosition_filter"
+              }
+            },
+            {
+              "description": "Filter for the block changed event.",
+              "name": "_change_block",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "BlockChangedFilter"
+              }
+            },
+            {
+              "description": null,
+              "name": "and",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "or",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            }
+          ],
+          "kind": "INPUT_OBJECT",
+          "name": "Pool_filter"
+        },
+        {
+          "description": null,
+          "enumValues": [
+            {
+              "description": null,
+              "name": "id"
+            },
+            {
+              "description": null,
+              "name": "masterChef"
+            },
+            {
+              "description": null,
+              "name": "masterChef__id"
+            },
+            {
+              "description": null,
+              "name": "masterChef__totalAllocPoint"
+            },
+            {
+              "description": null,
+              "name": "masterChef__undistributedCake"
+            },
+            {
+              "description": null,
+              "name": "masterChef__lastHarvestBlock"
+            },
+            {
+              "description": null,
+              "name": "masterChef__latestPeriodStartTime"
+            },
+            {
+              "description": null,
+              "name": "masterChef__latestPeriodEndTime"
+            },
+            {
+              "description": null,
+              "name": "masterChef__latestPeriodCakePerSecond"
+            },
+            {
+              "description": null,
+              "name": "masterChef__latestPeriodCakeAmount"
+            },
+            {
+              "description": null,
+              "name": "masterChef__periodDuration"
+            },
+            {
+              "description": null,
+              "name": "masterChef__poolCount"
+            },
+            {
+              "description": null,
+              "name": "masterChef__timestamp"
+            },
+            {
+              "description": null,
+              "name": "masterChef__block"
+            },
+            {
+              "description": null,
+              "name": "v3Pool"
+            },
+            {
+              "description": null,
+              "name": "allocPoint"
+            },
+            {
+              "description": null,
+              "name": "totalUsersCount"
+            },
+            {
+              "description": null,
+              "name": "userCount"
+            },
+            {
+              "description": null,
+              "name": "timestamp"
+            },
+            {
+              "description": null,
+              "name": "block"
+            },
+            {
+              "description": null,
+              "name": "userPositions"
+            }
+          ],
+          "fields": null,
+          "inputFields": null,
+          "kind": "ENUM",
+          "name": "Pool_orderBy"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": [
+            {
+              "description": null,
+              "name": "masterChef",
+              "type": {
+                "kind": "OBJECT",
+                "name": "MasterChef",
+                "ofType": null
+              }
+            },
+            {
+              "description": null,
+              "name": "masterChefs",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "pool",
+              "type": {
+                "kind": "OBJECT",
+                "name": "Pool",
+                "ofType": null
+              }
+            },
+            {
+              "description": null,
+              "name": "pools",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "userPosition",
+              "type": {
+                "kind": "OBJECT",
+                "name": "UserPosition",
+                "ofType": null
+              }
+            },
+            {
+              "description": null,
+              "name": "userPositions",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "user",
+              "type": {
+                "kind": "OBJECT",
+                "name": "User",
+                "ofType": null
+              }
+            },
+            {
+              "description": null,
+              "name": "users",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null
+                }
+              }
+            },
+            {
+              "description": "Access to subgraph metadata",
+              "name": "_meta",
+              "type": {
+                "kind": "OBJECT",
+                "name": "_Meta_",
+                "ofType": null
+              }
+            }
+          ],
+          "inputFields": null,
+          "kind": "OBJECT",
+          "name": "Query"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": null,
+          "inputFields": null,
+          "kind": "SCALAR",
+          "name": "String"
+        },
+        {
+          "description": "A string representation of microseconds UNIX timestamp (16 digits)\n",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": null,
+          "kind": "SCALAR",
+          "name": "Timestamp"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": [
+            {
+              "description": null,
+              "name": "id",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "address",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Bytes"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "timestamp",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "BigInt"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "block",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "BigInt"
+                }
+              }
+            }
+          ],
+          "inputFields": null,
+          "kind": "OBJECT",
+          "name": "User"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": [
+            {
+              "description": null,
+              "name": "id",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "pool",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "Pool"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "tickLower",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "BigInt"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "tickUpper",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "BigInt"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "liquidity",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "BigInt"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "timestamp",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "BigInt"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "block",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "BigInt"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "user",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "User"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "earned",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "BigInt"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "isStaked",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Boolean"
+                }
+              }
+            }
+          ],
+          "inputFields": null,
+          "kind": "OBJECT",
+          "name": "UserPosition"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "description": null,
+              "name": "id",
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "id_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "pool",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "pool_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "pool_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "pool_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "pool_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "pool_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "pool_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "pool_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "pool_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "pool_contains_nocase",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "pool_not_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "pool_not_contains_nocase",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "pool_starts_with",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "pool_starts_with_nocase",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "pool_not_starts_with",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "pool_not_starts_with_nocase",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "pool_ends_with",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "pool_ends_with_nocase",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "pool_not_ends_with",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "pool_not_ends_with_nocase",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "pool_",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "Pool_filter"
+              }
+            },
+            {
+              "description": null,
+              "name": "tickLower",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "tickLower_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "tickLower_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "tickLower_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "tickLower_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "tickLower_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "tickLower_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "tickLower_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "tickUpper",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "tickUpper_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "tickUpper_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "tickUpper_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "tickUpper_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "tickUpper_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "tickUpper_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "tickUpper_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "liquidity",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "liquidity_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "liquidity_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "liquidity_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "liquidity_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "liquidity_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "liquidity_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "liquidity_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "timestamp",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "timestamp_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "timestamp_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "timestamp_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "timestamp_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "timestamp_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "timestamp_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "timestamp_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "block",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "block_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "block_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "block_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "block_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "block_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "block_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "block_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "user",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "user_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "user_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "user_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "user_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "user_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "user_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "user_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "user_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "user_contains_nocase",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "user_not_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "user_not_contains_nocase",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "user_starts_with",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "user_starts_with_nocase",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "user_not_starts_with",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "user_not_starts_with_nocase",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "user_ends_with",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "user_ends_with_nocase",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "user_not_ends_with",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "user_not_ends_with_nocase",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String"
+              }
+            },
+            {
+              "description": null,
+              "name": "user_",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "User_filter"
+              }
+            },
+            {
+              "description": null,
+              "name": "earned",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "earned_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "earned_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "earned_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "earned_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "earned_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "earned_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "earned_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "isStaked",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean"
+              }
+            },
+            {
+              "description": null,
+              "name": "isStaked_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean"
+              }
+            },
+            {
+              "description": null,
+              "name": "isStaked_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "isStaked_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": "Filter for the block changed event.",
+              "name": "_change_block",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "BlockChangedFilter"
+              }
+            },
+            {
+              "description": null,
+              "name": "and",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "or",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            }
+          ],
+          "kind": "INPUT_OBJECT",
+          "name": "UserPosition_filter"
+        },
+        {
+          "description": null,
+          "enumValues": [
+            {
+              "description": null,
+              "name": "id"
+            },
+            {
+              "description": null,
+              "name": "pool"
+            },
+            {
+              "description": null,
+              "name": "pool__id"
+            },
+            {
+              "description": null,
+              "name": "pool__v3Pool"
+            },
+            {
+              "description": null,
+              "name": "pool__allocPoint"
+            },
+            {
+              "description": null,
+              "name": "pool__totalUsersCount"
+            },
+            {
+              "description": null,
+              "name": "pool__userCount"
+            },
+            {
+              "description": null,
+              "name": "pool__timestamp"
+            },
+            {
+              "description": null,
+              "name": "pool__block"
+            },
+            {
+              "description": null,
+              "name": "tickLower"
+            },
+            {
+              "description": null,
+              "name": "tickUpper"
+            },
+            {
+              "description": null,
+              "name": "liquidity"
+            },
+            {
+              "description": null,
+              "name": "timestamp"
+            },
+            {
+              "description": null,
+              "name": "block"
+            },
+            {
+              "description": null,
+              "name": "user"
+            },
+            {
+              "description": null,
+              "name": "user__id"
+            },
+            {
+              "description": null,
+              "name": "user__address"
+            },
+            {
+              "description": null,
+              "name": "user__timestamp"
+            },
+            {
+              "description": null,
+              "name": "user__block"
+            },
+            {
+              "description": null,
+              "name": "earned"
+            },
+            {
+              "description": null,
+              "name": "isStaked"
+            }
+          ],
+          "fields": null,
+          "inputFields": null,
+          "kind": "ENUM",
+          "name": "UserPosition_orderBy"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "description": null,
+              "name": "id",
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "id_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "address",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "address_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "address_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "address_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "address_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "address_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "address_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "address_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "address_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "address_not_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "timestamp",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "timestamp_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "timestamp_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "timestamp_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "timestamp_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "timestamp_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "timestamp_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "timestamp_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "block",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "block_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "block_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "block_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "block_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "block_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "block_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "block_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": "Filter for the block changed event.",
+              "name": "_change_block",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "BlockChangedFilter"
+              }
+            },
+            {
+              "description": null,
+              "name": "and",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "or",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            }
+          ],
+          "kind": "INPUT_OBJECT",
+          "name": "User_filter"
+        },
+        {
+          "description": null,
+          "enumValues": [
+            {
+              "description": null,
+              "name": "id"
+            },
+            {
+              "description": null,
+              "name": "address"
+            },
+            {
+              "description": null,
+              "name": "timestamp"
+            },
+            {
+              "description": null,
+              "name": "block"
+            }
+          ],
+          "fields": null,
+          "inputFields": null,
+          "kind": "ENUM",
+          "name": "User_orderBy"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": [
+            {
+              "description": "The hash of the block",
+              "name": "hash",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes",
+                "ofType": null
+              }
+            },
+            {
+              "description": "The block number",
+              "name": "number",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Int"
+                }
+              }
+            },
+            {
+              "description": "Integer representation of the timestamp stored in blocks for the chain",
+              "name": "timestamp",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            {
+              "description": "The hash of the parent block",
+              "name": "parentHash",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes",
+                "ofType": null
+              }
+            }
+          ],
+          "inputFields": null,
+          "kind": "OBJECT",
+          "name": "_Block_"
+        },
+        {
+          "description": "The type for the top-level _meta field",
+          "enumValues": null,
+          "fields": [
+            {
+              "description": "Information about a specific subgraph block. The hash of the block\nwill be null if the _meta field has a block constraint that asks for\na block number. It will be filled if the _meta field has no block constraint\nand therefore asks for the latest  block\n",
+              "name": "block",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "_Block_"
+                }
+              }
+            },
+            {
+              "description": "The deployment ID",
+              "name": "deployment",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String"
+                }
+              }
+            },
+            {
+              "description": "If `true`, the subgraph encountered indexing errors at some past block",
+              "name": "hasIndexingErrors",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Boolean"
+                }
+              }
+            }
+          ],
+          "inputFields": null,
+          "kind": "OBJECT",
+          "name": "_Meta_"
+        },
+        {
+          "description": null,
+          "enumValues": [
+            {
+              "description": "Data will be returned even if the subgraph has indexing errors",
+              "name": "allow"
+            },
+            {
+              "description": "If the subgraph has indexing errors, data will be omitted. The default.",
+              "name": "deny"
+            }
+          ],
+          "fields": null,
+          "inputFields": null,
+          "kind": "ENUM",
+          "name": "_SubgraphErrorPolicy_"
+        }
+      ]
+    }
+  }
+}

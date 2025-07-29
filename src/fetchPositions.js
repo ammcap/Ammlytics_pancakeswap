@@ -30,59 +30,80 @@ const posMgr = new ethers.Contract(CONTRACTS.POSITION_MANAGER, NFTManagerABI.abi
 const factory = new ethers.Contract(CONTRACTS.FACTORY, FactoryABI.abi, provider);
 const masterchef = new ethers.Contract(CONTRACTS.MASTERCHEF, MasterChefABI, provider);
 
-// Fetch all historical token IDs associated with the owner via Transfer events
-export async function fetchAllTokenIds(owner) {
-    const transferSig = ethers.utils.keccak256(ethers.utils.toUtf8Bytes('Transfer(address,address,uint256)'));
-    const ownerPadded = ethers.utils.hexZeroPad(owner.toLowerCase(), 32);
-
-    // Filter for transfers from owner
-    const filterFrom = {
-        address: CONTRACTS.POSITION_MANAGER,
-        topics: [transferSig, ownerPadded, null, null],
-        fromBlock: 0,
-        toBlock: 'latest'
-    };
-
-    // Filter for transfers to owner
-    const filterTo = {
-        address: CONTRACTS.POSITION_MANAGER,
-        topics: [transferSig, null, ownerPadded, null],
-        fromBlock: 0,
-        toBlock: 'latest'
-    };
-
-    const logsFrom = await provider.getLogs(filterFrom);
-    const logsTo = await provider.getLogs(filterTo);
-    const allLogs = [...logsFrom, ...logsTo];
-
-    const tokenIds = new Set();
-    for (const log of allLogs) {
-        const tokenId = BigInt(log.topics[3]).toString();
-        tokenIds.add(tokenId);
+async function getDirectOwnedIds(owner) {
+  const count = await posMgr.balanceOf(owner);
+  const ids = [];
+  for (let i = 0; i < Number(count); i++) {
+    const id = await posMgr.tokenOfOwnerByIndex(owner, i);
+    const pos = await posMgr.positions(id);
+    if (pos[7].gt(0)) {  // liquidity > 0
+      ids.push(id.toString());
     }
+  }
+  return ids;
+}
 
-    // Validate each token ID: check current owner and confirm if active/staked
-    const validIds = [];
-    for (const id of tokenIds) {
-        try {
-            const currentOwner = await posMgr.ownerOf(id);
-            const pos = await posMgr.positions(id);
-            if (pos[7].eq(0)) continue;  // Skip closed/burned positions (liquidity == 0)
+async function getStakedIds(owner) {
+  const lowerOwner = owner.toLowerCase();
+  const depositSig = ethers.utils.keccak256(ethers.utils.toUtf8Bytes('Deposit(address,uint256,uint256,uint256,int24,int24)'));
+  const ownerPadded = ethers.utils.hexZeroPad(lowerOwner, 32);
 
-            if (currentOwner.toLowerCase() === owner.toLowerCase()) {
-                validIds.push(id);
-            } else if (currentOwner.toLowerCase() === CONTRACTS.MASTERCHEF.toLowerCase()) {
-                const info = await masterchef.userPositionInfos(id);
-                if (info[6].toLowerCase() === owner.toLowerCase()) {  // info.user
-                    validIds.push(id);
-                }
-            }
-        } catch (err) {
-            console.error(`Error validating token ID ${id}:`, err);
+  const currentBlock = await provider.getBlockNumber();
+  const chunkSize = 500;
+  const lookbackBlocks = 100000;  // ~2 days on Base; adjust if needed
+  const startFromBlock = Math.max(17467449, currentBlock - lookbackBlocks);  // MasterChef V3 deployment or recent
+
+  const tokenIds = new Set();
+
+  const batches = [];
+  for (let endBlock = currentBlock; endBlock > startFromBlock; endBlock -= chunkSize) {
+    const startBlock = Math.max(startFromBlock, endBlock - chunkSize + 1);
+    batches.push(async () => {
+      const filter = {
+        address: CONTRACTS.MASTERCHEF,
+        topics: [depositSig, ownerPadded, null, null],
+        fromBlock: '0x' + startBlock.toString(16),
+        toBlock: '0x' + endBlock.toString(16)
+      };
+      try {
+        const logs = await provider.getLogs(filter);
+        for (const log of logs) {
+          const tokenId = BigInt(log.topics[3]).toString();
+          tokenIds.add(tokenId);
         }
-    }
+        const progress = ((currentBlock - endBlock) / lookbackBlocks * 100).toFixed(1);
+        console.log(`Processed Deposit logs for blocks ${startBlock} to ${endBlock} (${tokenIds.size} unique IDs found so far) - ${progress}% complete`);
+      } catch (err) {
+        console.error(`Error fetching Deposit logs for blocks ${startBlock} to ${endBlock}:`, err);
+      }
+    });
+  }
 
-    return validIds;
+  const batchSize = 20;  // Parallel; reduce if rate limits
+  for (let i = 0; i < batches.length; i += batchSize) {
+    await Promise.all(batches.slice(i, i + batchSize).map(b => b()));
+    await new Promise(r => setTimeout(r, 200));  // Delay to avoid rate limits
+  }
+
+  const validIds = [];
+  for (const id of tokenIds) {
+    try {
+      const info = await masterchef.userPositionInfos(id);
+      if (info[0].gt(0) && info[6].toLowerCase() === lowerOwner) {  // liquidity > 0 and user == owner
+        validIds.push(id);
+      }
+    } catch (err) {
+      console.error(`Error validating staked token ID ${id}:`, err);
+    }
+  }
+
+  return validIds;
+}
+
+export async function fetchAllTokenIds(owner) {
+  const directIds = await getDirectOwnedIds(owner);
+  const stakedIds = await getStakedIds(owner);
+  return [...new Set([...directIds, ...stakedIds])];
 }
 
 export async function fetchPosition(tokenId) {
@@ -201,4 +222,27 @@ export async function isStaked(tokenId) {
 
 export async function fetchFarmingRewards(tokenId) {
     return await masterchef.pendingCake(tokenId);
+}
+
+async function querySubgraph(endpoint, query, variables) {
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query, variables })
+    });
+    if (!response.ok) {
+      console.error(`Subgraph response not OK for ${endpoint}: ${response.status}`);
+      return null;
+    }
+    const result = await response.json();
+    if (result.errors) {
+      console.error(`Subgraph query errors for ${endpoint}:`, result.errors);
+      return null;
+    }
+    return result.data;
+  } catch (err) {
+    console.error(`Error querying subgraph ${endpoint}:`, err);
+    return null;
+  }
 }

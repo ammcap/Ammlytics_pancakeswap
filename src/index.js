@@ -5,8 +5,8 @@ import { OWNER_ADDRESS } from './config.js';
 
 async function main() {
     console.log(`Fetching positions for ${OWNER_ADDRESS}…`);
-    // const ids = await fetchAllTokenIds(OWNER_ADDRESS);  // Comment this out temporarily
-    const ids = ['457993'];  // Hardcode your known position ID for testing
+    const ids = await fetchAllTokenIds(OWNER_ADDRESS);  // Comment this out temporarily
+    // const ids = ['457993'];  // Hardcode your known position ID for testing
 
     if (!ids.length) {
         console.log('No v3 positions found for your address.');

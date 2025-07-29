@@ -214,7 +214,8 @@ export async function fetchPosition(tokenId) {
     owed0: raw[10],
     owed1: raw[11],
     earned: subgraphPos ? BigNumber.from(subgraphPos.earned) : await fetchFarmingRewards(tokenId),
-    v3Pool: subgraphPos?.pool?.v3Pool
+    v3Pool: subgraphPos?.pool?.v3Pool,
+    timestamp: subgraphPos?.timestamp
   };
 }
 

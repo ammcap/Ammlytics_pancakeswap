@@ -21,6 +21,8 @@ async function main() {
         const sym1 = await getTokenSymbol(pos.token1);
         const feePercent = (pos.feeTier / 10000).toFixed(2) + '%';
         const staked = await isStaked(id);
+                const creationDate = new Date(pos.timestamp * 1000).toLocaleString();
+        console.log(`Created: ${creationDate}`);
         console.log(`Pair: ${sym0}/${sym1} (Fee: ${feePercent})`);
         const dec0 = await getTokenDecimals(pos.token0);
         const dec1 = await getTokenDecimals(pos.token1);

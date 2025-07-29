@@ -1,5 +1,5 @@
 import { ethers, BigNumber } from 'ethers';
-import { RPC_URL, CHAIN_ID, OWNER_ADDRESS, CONTRACTS } from './config.js';
+import { RPC_URL, CHAIN_ID, OWNER_ADDRESS, CONTRACTS, THEGRAPH_API_KEY } from './config.js';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 
@@ -19,7 +19,10 @@ const IUniswapV3PoolABI = [
     'function liquidity() view returns (uint128)',
     'function feeGrowthGlobal0X128() view returns (uint256)',
     'function feeGrowthGlobal1X128() view returns (uint256)',
-    'function ticks(int24) view returns (uint128 liquidityGross, int128 liquidityNet, uint256 feeGrowthOutside0X128, uint256 feeGrowthOutside1X128, int56 tickCumulativeOutside, uint160 secondsPerLiquidityOutsideX128, uint32 secondsOutside, bool initialized)'
+    'function ticks(int24) view returns (uint128 liquidityGross, int128 liquidityNet, uint256 feeGrowthOutside0X128, uint256 feeGrowthOutside1X128, int56 tickCumulativeOutside, uint160 secondsPerLiquidityOutsideX128, uint32 secondsOutside, bool initialized)',
+    'function token0() view returns (address)',
+    'function token1() view returns (address)',
+    'function fee() view returns (uint24)'
 ];
 
 import { Token } from '@pancakeswap/sdk';
@@ -29,6 +32,91 @@ const provider = new ethers.providers.JsonRpcProvider(RPC_URL, { chainId: CHAIN_
 const posMgr = new ethers.Contract(CONTRACTS.POSITION_MANAGER, NFTManagerABI.abi, provider);
 const factory = new ethers.Contract(CONTRACTS.FACTORY, FactoryABI.abi, provider);
 const masterchef = new ethers.Contract(CONTRACTS.MASTERCHEF, MasterChefABI, provider);
+
+// Subgraph endpoint for MasterChefV3 Base
+const MASTERCHEF_SUBGRAPH_ENDPOINT = `https://gateway.thegraph.com/api/${THEGRAPH_API_KEY}/subgraphs/id/3oYoAoCJMV2ZyZSTpg6cUS1gKTzcc2cjmCVfpNyWZVmr`;
+
+// Query subgraph
+async function querySubgraph(endpoint, query, variables) {
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${THEGRAPH_API_KEY}`
+      },
+      body: JSON.stringify({ query, variables })
+    });
+    if (!response.ok) {
+      console.error(`Subgraph response not OK for ${endpoint}: ${response.status}`);
+      return null;
+    }
+    const result = await response.json();
+    if (result.errors) {
+      console.error(`Subgraph query errors for ${endpoint}:`, result.errors);
+      return null;
+    }
+    return result.data;
+  } catch (err) {
+    console.error(`Error querying subgraph ${endpoint}:`, err);
+    return null;
+  }
+}
+
+// Fetch staked positions from subgraph
+async function fetchStakedPositionsFromSubgraph(owner) {
+  const query = `
+    query GetUserStakedPositions($user: String!) {
+      userPositions(
+        where: { user: $user, liquidity_gt: "0" }
+        orderBy: timestamp
+        orderDirection: desc
+        first: 100
+      ) {
+        id
+        pool {
+          id
+          v3Pool
+          allocPoint
+          totalUsersCount
+          userCount
+          timestamp
+          block
+          masterChef {
+            id
+            totalAllocPoint
+            undistributedCake
+            lastHarvestBlock
+            latestPeriodStartTime
+            latestPeriodEndTime
+            latestPeriodCakePerSecond
+            latestPeriodCakeAmount
+            periodDuration
+            poolCount
+            timestamp
+            block
+          }
+        }
+        tickLower
+        tickUpper
+        liquidity
+        timestamp
+        block
+        user {
+          id
+          address
+          timestamp
+          block
+        }
+        earned
+        isStaked
+      }
+    }
+  `;
+  const variables = { user: owner.toLowerCase() };
+  const data = await querySubgraph(MASTERCHEF_SUBGRAPH_ENDPOINT, query, variables);
+  return data?.userPositions || [];
+}
 
 async function getDirectOwnedIds(owner) {
   const count = await posMgr.balanceOf(owner);
@@ -102,32 +190,37 @@ async function getStakedIds(owner) {
 
 export async function fetchAllTokenIds(owner) {
   const directIds = await getDirectOwnedIds(owner);
-  const stakedIds = await getStakedIds(owner);
+  const stakedPositions = await fetchStakedPositionsFromSubgraph(owner);
+  const stakedIds = stakedPositions.map(pos => pos.id);
   return [...new Set([...directIds, ...stakedIds])];
 }
 
 export async function fetchPosition(tokenId) {
   const raw = await posMgr.positions(tokenId);
+  const stakedPositions = await fetchStakedPositionsFromSubgraph(OWNER_ADDRESS);
+  const subgraphPos = stakedPositions.find(pos => pos.id === tokenId.toString());
   return {
     tokenId,
     token0: raw[2],
     token1: raw[3],
     feeTier: Number(raw[4]),
-    tickLower: Number(raw[5]),
-    tickUpper: Number(raw[6]),
-    liquidity: raw[7],  // BigNumber
-    feeGrowthInside0Last: raw[8],  // BigNumber
-    feeGrowthInside1Last: raw[9],  // BigNumber
-    owed0: raw[10],   // BigNumber
-    owed1: raw[11]    // BigNumber
+    tickLower: subgraphPos ? Number(subgraphPos.tickLower) : Number(raw[5]),
+    tickUpper: subgraphPos ? Number(subgraphPos.tickUpper) : Number(raw[6]),
+    liquidity: subgraphPos ? BigNumber.from(subgraphPos.liquidity) : raw[7],
+    feeGrowthInside0Last: raw[8],
+    feeGrowthInside1Last: raw[9],
+    owed0: raw[10],
+    owed1: raw[11],
+    earned: subgraphPos ? BigNumber.from(subgraphPos.earned) : await fetchFarmingRewards(tokenId),
+    v3Pool: subgraphPos?.pool?.v3Pool
   };
 }
 
-export async function getPoolAddress(token0, token1, feeTier) {
-    return factory.getPool(token0, token1, feeTier);
+export async function getPoolAddress(token0, token1, feeTier, v3PoolFromSubgraph) {
+  if (v3PoolFromSubgraph) return v3PoolFromSubgraph;
+  return factory.getPool(token0, token1, feeTier);
 }
 
-// Updated fetchPoolState to use exact ticks and fetch slot0 first
 export async function fetchPoolState(poolAddress, tickLower, tickUpper) {
   const pool = new ethers.Contract(poolAddress, IUniswapV3PoolABI, provider);
   const slot0 = await pool.slot0();
@@ -137,49 +230,47 @@ export async function fetchPoolState(poolAddress, tickLower, tickUpper) {
     pool.liquidity(),
     pool.feeGrowthGlobal0X128(),
     pool.feeGrowthGlobal1X128(),
-    pool.ticks(BigNumber.from(tickLower)),  // Use BigNumber for safe encoding of negative ticks
-    pool.ticks(BigNumber.from(tickUpper))   // Use BigNumber for safe encoding of negative ticks
+    pool.ticks(BigNumber.from(tickLower)),
+    pool.ticks(BigNumber.from(tickUpper))
   ]);
   return { slot0, liquidity, feeGrowthGlobal0, feeGrowthGlobal1, tickLowerData, tickUpperData };
 }
 
-// Helper to compute feeGrowthInside (use BigNumber ops)
 function computeFeeGrowthInside(tickCurrent, tickLower, tickUpper, feeGrowthGlobal, feeGrowthOutsideLower, feeGrowthOutsideUpper) {
-    let feeGrowthBelow = tickCurrent >= tickLower ? feeGrowthOutsideLower : feeGrowthGlobal.sub(feeGrowthOutsideLower);
-    let feeGrowthAbove = tickCurrent < tickUpper ? feeGrowthOutsideUpper : feeGrowthGlobal.sub(feeGrowthOutsideUpper);
-    return feeGrowthGlobal.sub(feeGrowthBelow).sub(feeGrowthAbove);
+  let feeGrowthBelow = tickCurrent >= tickLower ? feeGrowthOutsideLower : feeGrowthGlobal.sub(feeGrowthOutsideLower);
+  let feeGrowthAbove = tickCurrent < tickUpper ? feeGrowthOutsideUpper : feeGrowthGlobal.sub(feeGrowthOutsideUpper);
+  return feeGrowthGlobal.sub(feeGrowthBelow).sub(feeGrowthAbove);
 }
 
-// Updated computeUncollectedFees with BigNumber operations
 async function computeUncollectedFees(positionData, poolState, dec0, dec1) {
-    const { liquidity, feeGrowthInside0Last, feeGrowthInside1Last, tickLower, tickUpper, owed0, owed1 } = positionData;
-    const { slot0, feeGrowthGlobal0, feeGrowthGlobal1, tickLowerData, tickUpperData } = poolState;
-    const tickCurrent = Number(slot0.tick);
+  const { liquidity, feeGrowthInside0Last, feeGrowthInside1Last, tickLower, tickUpper, owed0, owed1 } = positionData;
+  const { slot0, feeGrowthGlobal0, feeGrowthGlobal1, tickLowerData, tickUpperData } = poolState;
+  const tickCurrent = Number(slot0.tick);
 
-    const feeGrowthInside0 = computeFeeGrowthInside(tickCurrent, tickLower, tickUpper, feeGrowthGlobal0, tickLowerData.feeGrowthOutside0X128, tickUpperData.feeGrowthOutside0X128);
-    const feeGrowthInside1 = computeFeeGrowthInside(tickCurrent, tickLower, tickUpper, feeGrowthGlobal1, tickLowerData.feeGrowthOutside1X128, tickUpperData.feeGrowthOutside1X128);
+  const feeGrowthInside0 = computeFeeGrowthInside(tickCurrent, tickLower, tickUpper, feeGrowthGlobal0, tickLowerData.feeGrowthOutside0X128, tickUpperData.feeGrowthOutside0X128);
+  const feeGrowthInside1 = computeFeeGrowthInside(tickCurrent, tickLower, tickUpper, feeGrowthGlobal1, tickLowerData.feeGrowthOutside1X128, tickUpperData.feeGrowthOutside1X128);
 
-    const delta0 = feeGrowthInside0.sub(feeGrowthInside0Last);
-    const delta1 = feeGrowthInside1.sub(feeGrowthInside1Last);
-    const Q128 = BigNumber.from(2).pow(128);  // 1 << 128 as BigNumber
+  const delta0 = feeGrowthInside0.sub(feeGrowthInside0Last);
+  const delta1 = feeGrowthInside1.sub(feeGrowthInside1Last);
+  const Q128 = BigNumber.from(2).pow(128);
 
-    const unclaimed0 = delta0.gt(0) ? delta0.mul(liquidity).div(Q128).add(owed0) : owed0;
-    const unclaimed1 = delta1.gt(0) ? delta1.mul(liquidity).div(Q128).add(owed1) : owed1;
+  const unclaimed0 = delta0.gt(0) ? delta0.mul(liquidity).div(Q128).add(owed0) : owed0;
+  const unclaimed1 = delta1.gt(0) ? delta1.mul(liquidity).div(Q128).add(owed1) : owed1;
 
-    return {
-        fees0: ethers.utils.formatUnits(unclaimed0, dec0),
-        fees1: ethers.utils.formatUnits(unclaimed1, dec1)
-    };
+  return {
+      fees0: ethers.utils.formatUnits(unclaimed0, dec0),
+      fees1: ethers.utils.formatUnits(unclaimed1, dec1)
+  };
 }
 
 async function getTokenDecimals(address) {
-    const erc20 = new ethers.Contract(address, ['function decimals() view returns (uint8)'], provider);
-    return Number(await erc20.decimals());
+  const erc20 = new ethers.Contract(address, ['function decimals() view returns (uint8)'], provider);
+  return Number(await erc20.decimals());
 }
 
 export async function getTokenSymbol(address) {
-    const erc20 = new ethers.Contract(address, ['function symbol() view returns (string)'], provider);
-    return await erc20.symbol();
+  const erc20 = new ethers.Contract(address, ['function symbol() view returns (string)'], provider);
+  return await erc20.symbol();
 }
 
 export async function computeAmounts(positionData, poolState) {
@@ -190,59 +281,36 @@ export async function computeAmounts(positionData, poolState) {
   const T1 = new Token(CHAIN_ID, token1, dec1);
 
   const sdkPool = new Pool(
-        T0,
-        T1,
-        feeTier,
-        poolState.slot0.sqrtPriceX96.toString(),
-        poolState.liquidity.toString(),
-        Number(poolState.slot0.tick)
-    );
+      T0,
+      T1,
+      feeTier,
+      poolState.slot0.sqrtPriceX96.toString(),
+      poolState.liquidity.toString(),
+      Number(poolState.slot0.tick)
+  );
 
   const pos = new Position({
-        pool: sdkPool,
-        liquidity: posLiq.toString(),
-        tickLower,
-        tickUpper
-    });
+      pool: sdkPool,
+      liquidity: posLiq.toString(),
+      tickLower,
+      tickUpper
+  });
 
   const { fees0, fees1 } = await computeUncollectedFees(positionData, poolState, dec0, dec1);
 
   return {
-        amount0: pos.amount0.toSignificant(6),
-        amount1: pos.amount1.toSignificant(6),
-        fees0,
-        fees1
-    };
+      amount0: pos.amount0.toSignificant(6),
+      amount1: pos.amount1.toSignificant(6),
+      fees0,
+      fees1
+  };
 }
 
 export async function isStaked(tokenId) {
-    const currentOwner = await posMgr.ownerOf(tokenId);
-    return currentOwner.toLowerCase() === CONTRACTS.MASTERCHEF.toLowerCase();
+  const currentOwner = await posMgr.ownerOf(tokenId);
+  return currentOwner.toLowerCase() === CONTRACTS.MASTERCHEF.toLowerCase();
 }
 
 export async function fetchFarmingRewards(tokenId) {
-    return await masterchef.pendingCake(tokenId);
-}
-
-async function querySubgraph(endpoint, query, variables) {
-  try {
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query, variables })
-    });
-    if (!response.ok) {
-      console.error(`Subgraph response not OK for ${endpoint}: ${response.status}`);
-      return null;
-    }
-    const result = await response.json();
-    if (result.errors) {
-      console.error(`Subgraph query errors for ${endpoint}:`, result.errors);
-      return null;
-    }
-    return result.data;
-  } catch (err) {
-    console.error(`Error querying subgraph ${endpoint}:`, err);
-    return null;
-  }
+  return await masterchef.pendingCake(tokenId);
 }

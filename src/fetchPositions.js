@@ -1,4 +1,6 @@
 import { ethers, BigNumber } from 'ethers';
+import Decimal from 'decimal.js';
+
 import { RPC_URL, CHAIN_ID, OWNER_ADDRESS, CONTRACTS, THEGRAPH_API_KEY } from './config.js';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
@@ -263,7 +265,7 @@ async function computeUncollectedFees(positionData, poolState, dec0, dec1) {
   };
 }
 
-async function getTokenDecimals(address) {
+export async function getTokenDecimals(address) {
   const erc20 = new ethers.Contract(address, ['function decimals() view returns (uint8)'], provider);
   return Number(await erc20.decimals());
 }
@@ -306,6 +308,8 @@ export async function computeAmounts(positionData, poolState) {
   };
 }
 
+
+
 export async function isStaked(tokenId) {
   const currentOwner = await posMgr.ownerOf(tokenId);
   return currentOwner.toLowerCase() === CONTRACTS.MASTERCHEF.toLowerCase();
@@ -313,4 +317,12 @@ export async function isStaked(tokenId) {
 
 export async function fetchFarmingRewards(tokenId) {
   return await masterchef.pendingCake(tokenId);
+}
+
+export function tickToPrice(tick, dec0, dec1) {
+    // The price of token1 in terms of token0 is 1.0001^tick
+    // We need to adjust for the token decimals.
+    const price = new Decimal(1.0001).pow(tick);
+    const priceAdjusted = price.div(new Decimal(10).pow(dec1 - dec0));
+    return priceAdjusted;
 }

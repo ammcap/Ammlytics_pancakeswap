@@ -10,6 +10,7 @@
     "@pancakeswap/v3-core": "^1.0.2",
     "@pancakeswap/v3-periphery": "^1.0.2",
     "@pancakeswap/v3-sdk": "^3.9.3",
+    "decimal.js": "^10.6.0",
     "dotenv": "^16.0.0",
     "ethers": "^5.7.2"
   }

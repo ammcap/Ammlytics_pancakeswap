@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
-import { fetchAllTokenIds, fetchPosition, getPoolAddress, fetchPoolState, computeAmounts, isStaked, fetchFarmingRewards, getTokenSymbol }
+import Decimal from 'decimal.js';
+import { fetchAllTokenIds, fetchPosition, getPoolAddress, fetchPoolState, computeAmounts, isStaked, fetchFarmingRewards, getTokenSymbol, getTokenDecimals, tickToPrice }
     from './fetchPositions.js';
 import { OWNER_ADDRESS } from './config.js';
 
@@ -21,7 +22,19 @@ async function main() {
         const feePercent = (pos.feeTier / 10000).toFixed(2) + '%';
         const staked = await isStaked(id);
         console.log(`Pair: ${sym0}/${sym1} (Fee: ${feePercent})`);
+        const dec0 = await getTokenDecimals(pos.token0);
+        const dec1 = await getTokenDecimals(pos.token1);
+
+        // The price of token1 in terms of token0
+        const priceLower = tickToPrice(pos.tickLower, dec0, dec1);
+        const priceUpper = tickToPrice(pos.tickUpper, dec0, dec1);
+
+        // To get the price of token0 in terms of token1, we take the inverse.
+        const priceLowerInv = new Decimal(1).div(priceUpper);
+        const priceUpperInv = new Decimal(1).div(priceLower);
+
         console.log(`Range: Tick ${pos.tickLower} to ${pos.tickUpper}`);
+        console.log(`Price: Min ${priceLowerInv.toSignificantDigits(6)} / Max ${priceUpperInv.toSignificantDigits(6)} ${sym0} per ${sym1}`);
         console.log(`Staked in farm: ${staked ? 'Yes' : 'No'}`);
         const poolAddr = await getPoolAddress(pos.token0, pos.token1, pos.feeTier);
         console.log(`Pool: ${poolAddr}`);

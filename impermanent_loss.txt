@@ -1,0 +1,166 @@
+################################################################################
+#
+#  Impermanent Loss Calculation for Concentrated Liquidity Positions
+#  Reference for Orca DEX (Solana) - SOL/USDC Pair
+#
+################################################################################
+
+
+##
+## 1. CORE CONCEPTS
+##
+
+# Impermanent Loss (IL): The temporary loss of funds that a liquidity provider (LP) experiences due to price changes in a token pair. It's the difference in value between simply holding the tokens (HODL) and providing liquidity to an automated market maker (AMM).
+
+# Concentrated Liquidity: An advancement over the traditional `x*y=k` AMM model, used by Orca's Whirlpools. It allows LPs to provide liquidity within a specific price range, rather than across the entire price spectrum (from 0 to infinity). This concentrates the LP's capital, leading to higher fee earnings but also exposing them to greater impermanent loss if the price moves outside their chosen range.
+
+# Key Variables:
+#   - SOL: The volatile asset in the pair.
+#   - USDC: The stablecoin in the pair, assumed to be pegged to $1.
+#   - x: The amount of SOL in the position.
+#   - y: The amount of USDC in the position.
+#   - P: The current price of SOL in terms of USDC.
+#   - Pc: The initial price of SOL when the position was created.
+#   - Pa: The lower bound of the selected price range.
+#   - Pb: The upper bound of the selected price range.
+#   - L: The measure of liquidity, which is constant for a given position within its active range.
+
+
+##
+## 2. CALCULATING IMPERMANENT LOSS: A STEP-BY-STEP GUIDE
+##
+
+# This guide outlines how to calculate the impermanent loss at the upper (Pb) and lower (Pa) bounds of your price range.
+
+#
+# Step 1: Define Your Initial Position
+#
+
+# You need the following inputs from the user:
+#   - The amount of SOL to deposit (`x_initial`).
+#   - The amount of USDC to deposit (`y_initial`).
+#   - The initial price of SOL (`Pc`).
+#   - The lower price bound (`Pa`).
+#   - The upper price bound (`Pb`).
+
+#
+# Step 2: Calculate the Liquidity (L) of the Position
+#
+
+# The liquidity `L` is a crucial constant for your position. It's calculated based on the initial deposit amounts and the chosen price range.
+
+# You need two formulas, one for the amount of SOL (`x`) and one for the amount of USDC (`y`):
+#   - `x = L * (1 / sqrt(P) - 1 / sqrt(Pb))`
+#   - `y = L * (sqrt(P) - sqrt(Pa))`
+
+# Since you know the initial amounts (`x_initial`, `y_initial`) and the initial price (`Pc`), you can solve for `L`:
+#   - `L_from_x = x_initial / (1 / sqrt(Pc) - 1 / sqrt(Pb))`
+#   - `L_from_y = y_initial / (sqrt(Pc) - sqrt(Pa))`
+
+# Note: In a properly balanced initial deposit, these two `L` values should be nearly identical. You can use either formula to find `L`.
+
+#
+# Step 3: Calculate the Value of the Position at the Price Boundaries
+#
+
+# When the price `P` moves outside the range `[Pa, Pb]`, the position becomes composed of only one asset.
+
+#   - If `P >= Pb` (Price hits the upper bound): The position will be entirely in USDC.
+#     - The amount of SOL (`x`) becomes 0.
+#     - The amount of USDC (`y`) can be calculated using the formula for `y` with `P = Pb`:
+#       - `y_at_Pb = L * (sqrt(Pb) - sqrt(Pa))`
+#     - The total value of the position at `Pb` is simply `y_at_Pb`.
+
+#   - If `P <= Pa` (Price hits the lower bound): The position will be entirely in SOL.
+#     - The amount of USDC (`y`) becomes 0.
+#     - The amount of SOL (`x`) can be calculated using the formula for `x` with `P = Pa`:
+#       - `x_at_Pa = L * (1 / sqrt(Pa) - 1 / sqrt(Pb))`
+#     - The total value of the position at `Pa` is `x_at_Pa * Pa`.
+
+#
+# Step 4: Calculate the HODL Value
+#
+
+# The HODL value is what your initial assets would be worth if you had simply held them in your wallet.
+
+#   - HODL Value at `Pb`: `(x_initial * Pb) + y_initial`
+#   - HODL Value at `Pa`: `(x_initial * Pa) + y_initial`
+
+#
+# Step 5: Calculate the Impermanent Loss
+#
+
+# Impermanent loss is the difference between the HODL value and the value of your LP position.
+
+#   - Impermanent Loss at `Pb`: `HODL_Value_at_Pb - Position_Value_at_Pb`
+#   - Impermanent Loss at `Pa`: `HODL_Value_at_Pa - Position_Value_at_Pa`
+
+# You can also express IL as a percentage:
+#   - `IL_% = (Impermanent_Loss / HODL_Value) * 100`
+
+##
+## 3. EXAMPLE SCENARIO: SOL/USDC
+##
+
+# Let's walk through an example.
+
+#
+# Initial Conditions:
+#
+# - Initial SOL Price (Pc): $170
+# - Lower Bound (Pa): $160
+# - Upper Bound (Pb): $180
+#
+# - You decide to provide liquidity with an initial value of approximately $1,000.
+# - At `Pc = $170`, the required initial amounts for this range are calculated as:
+#   - `x_initial` (SOL): ~2.774 SOL
+#   - `y_initial` (USDC): ~$500 USDC
+#   - Total Initial Value: `(2.774 * 170) + 500 = $471.58 + $500 = ~$971.58`
+
+#
+# Calculation Steps:
+#
+# 1. Calculate Liquidity (L):
+#    - Using the `y_initial` amount:
+#      `L = 500 / (sqrt(170) - sqrt(160)) = 500 / (13.038 - 12.649) = ~1284.3`
+
+# 2. Calculate Position Value at Upper Bound (Pb = $180):
+#    - Your position is now all USDC.
+#    - `y_at_Pb = 1284.3 * (sqrt(180) - sqrt(160)) = 1284.3 * (13.416 - 12.649) = ~$985.3`
+#    - `Position_Value_at_Pb = $985.3`
+
+# 3. Calculate HODL Value at Upper Bound:
+#    - `HODL_Value_at_Pb = (2.774 * 180) + 500 = $499.32 + $500 = $999.32`
+
+# 4. Calculate Impermanent Loss at Upper Bound:
+#    - `IL_at_Pb = $999.32 - $985.3 = $14.02`
+#    - `IL_%_at_Pb = (14.02 / 999.32) * 100 = ~1.40%`
+
+# ---
+
+# 5. Calculate Position Value at Lower Bound (Pa = $160):
+#    - Your position is now all SOL.
+#    - `x_at_Pa = 1284.3 * (1 / sqrt(160) - 1 / sqrt(180)) = 1284.3 * (0.07906 - 0.07454) = ~5.805 SOL`
+#    - `Position_Value_at_Pa = 5.805 * 160 = $928.8`
+
+# 6. Calculate HODL Value at Lower Bound:
+#    - `HODL_Value_at_Pa = (2.774 * 160) + 500 = $443.84 + $500 = $943.84`
+
+# 7. Calculate Impermanent Loss at Lower Bound:
+#    - `IL_at_Pa = $943.84 - $928.8 = $15.04`
+#    - `IL_%_at_Pa = (15.04 / 943.84) * 100 = ~1.59%`
+
+
+##
+## 4. THE ROLE OF TRADING FEES
+##
+
+# The calculations above do not include the trading fees you earn as an LP. These fees are your compensation for taking on the risk of impermanent loss.
+
+# - Fees are collected from swaps that occur within your active price range `[Pa, Pb]`.
+# - The total return of your position is: `(Final_Position_Value + Accrued_Fees) - Initial_Position_Value`.
+# - A successful LP position is one where `Accrued_Fees > Impermanent_Loss`.
+
+# To track profitability, your application should also fetch and display the unclaimed fees for the user's position. The net change in value of the position, including fees, is often referred to as "Price Impact + Fees".
+
+# This comprehensive data will allow your users to accurately assess the performance of their concentrated liquidity positions on the Orca DEX.

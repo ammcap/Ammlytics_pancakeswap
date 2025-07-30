@@ -197,25 +197,104 @@ export async function fetchAllTokenIds(owner) {
   return [...new Set([...directIds, ...stakedIds])];
 }
 
+const USDC_ADDRESS = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913';  // USDC on Base
+const TRANSFER_EVENT_SIG = ethers.utils.keccak256(ethers.utils.toUtf8Bytes('Transfer(address,address,uint256)'));
+const ZERO_PADDED = ethers.utils.hexZeroPad('0x0000000000000000000000000000000000000000', 32);
+
+export async function fetchInitialData(tokenId) {
+  const tokenIdBN = BigNumber.from(tokenId);
+  const tokenIdPadded = ethers.utils.hexZeroPad(tokenIdBN.toHexString(), 32);
+
+  // Binary search to find the mint block
+  let low = 1;  // Base genesis is block 1
+  let high = await provider.getBlockNumber();
+  let mintBlock = null;
+
+  while (low <= high) {
+    const mid = Math.floor((low + high) / 2);
+    try {
+      await posMgr.ownerOf(tokenId, { blockTag: mid });
+      mintBlock = mid;
+      high = mid - 1;  // Search for earliest (mint) block
+    } catch (err) {
+      if (err.reason.includes('token does not exist') || err.message.includes('revert')) {
+        low = mid + 1;
+      } else {
+        throw err;  // Unexpected error
+      }
+    }
+  }
+
+  if (!mintBlock) {
+    throw new Error(`Mint block not found for tokenId ${tokenId}`);
+  }
+
+  const blockInfo = await provider.getBlock(mintBlock);
+  const mintTimestamp = blockInfo.timestamp;
+
+  // Single-block log search for the mint Transfer event
+  const filter = {
+      address: CONTRACTS.POSITION_MANAGER,
+      topics: [TRANSFER_EVENT_SIG, ZERO_PADDED, null, tokenIdPadded],
+      fromBlock: mintBlock,
+      toBlock: mintBlock
+  };
+  const logs = await provider.getLogs(filter);
+  if (logs.length === 0) {
+      throw new Error(`No mint event found in block ${mintBlock} for tokenId ${tokenId}`);
+  }
+
+  // Get tx receipt and parse IncreaseLiquidity
+  const txHash = logs[0].transactionHash;
+  const receipt = await provider.getTransactionReceipt(txHash);
+
+  let initialAmount0, initialAmount1;
+  const iface = new ethers.utils.Interface(NFTManagerABI.abi);
+  for (const log of receipt.logs) {
+      if (log.address.toLowerCase() === CONTRACTS.POSITION_MANAGER.toLowerCase()) {
+          try {
+              const parsedLog = iface.parseLog(log);
+              if (parsedLog.name === 'IncreaseLiquidity' && parsedLog.args.tokenId.eq(tokenIdBN)) {
+                  initialAmount0 = parsedLog.args.amount0;
+                  initialAmount1 = parsedLog.args.amount1;
+                  break;
+              }
+          } catch {}
+      }
+  }
+
+  if (!initialAmount0 || !initialAmount1) {
+      throw new Error(`No IncreaseLiquidity event found in mint tx for tokenId ${tokenId}`);
+  }
+
+  return { initialAmount0, initialAmount1, mintTimestamp, mintBlock };
+}
+
 export async function fetchPosition(tokenId) {
   const raw = await posMgr.positions(tokenId);
   const stakedPositions = await fetchStakedPositionsFromSubgraph(OWNER_ADDRESS);
   const subgraphPos = stakedPositions.find(pos => pos.id === tokenId.toString());
+
+  const initial = await fetchInitialData(tokenId);  // New call
+
   return {
-    tokenId,
-    token0: raw[2],
-    token1: raw[3],
-    feeTier: Number(raw[4]),
-    tickLower: subgraphPos ? Number(subgraphPos.tickLower) : Number(raw[5]),
-    tickUpper: subgraphPos ? Number(subgraphPos.tickUpper) : Number(raw[6]),
-    liquidity: subgraphPos ? BigNumber.from(subgraphPos.liquidity) : raw[7],
-    feeGrowthInside0Last: raw[8],
-    feeGrowthInside1Last: raw[9],
-    owed0: raw[10],
-    owed1: raw[11],
-    earned: subgraphPos ? BigNumber.from(subgraphPos.earned) : await fetchFarmingRewards(tokenId),
-    v3Pool: subgraphPos?.pool?.v3Pool,
-    timestamp: subgraphPos?.timestamp
+      tokenId,
+      token0: raw[2],
+      token1: raw[3],
+      feeTier: Number(raw[4]),
+      tickLower: subgraphPos ? Number(subgraphPos.tickLower) : Number(raw[5]),
+      tickUpper: subgraphPos ? Number(subgraphPos.tickUpper) : Number(raw[6]),
+      liquidity: subgraphPos ? BigNumber.from(subgraphPos.liquidity) : raw[7],
+      feeGrowthInside0Last: raw[8],
+      feeGrowthInside1Last: raw[9],
+      owed0: raw[10],
+      owed1: raw[11],
+      earned: subgraphPos ? BigNumber.from(subgraphPos.earned) : await fetchFarmingRewards(tokenId),
+      v3Pool: subgraphPos?.pool?.v3Pool,
+      timestamp: initial.mintTimestamp,
+      initialAmount0: initial.initialAmount0,
+      initialAmount1: initial.initialAmount1,
+      mintBlock: initial.mintBlock
   };
 }
 
@@ -224,19 +303,18 @@ export async function getPoolAddress(token0, token1, feeTier, v3PoolFromSubgraph
   return factory.getPool(token0, token1, feeTier);
 }
 
-export async function fetchPoolState(poolAddress, tickLower, tickUpper) {
-  const pool = new ethers.Contract(poolAddress, IUniswapV3PoolABI, provider);
-  const slot0 = await pool.slot0();
-  console.log(`Ticks in fetchPoolState: Lower=${tickLower} (type: ${typeof tickLower}), Upper=${tickUpper} (type: ${typeof tickUpper})`);
-
-  const [liquidity, feeGrowthGlobal0, feeGrowthGlobal1, tickLowerData, tickUpperData] = await Promise.all([
-    pool.liquidity(),
-    pool.feeGrowthGlobal0X128(),
-    pool.feeGrowthGlobal1X128(),
-    pool.ticks(BigNumber.from(tickLower)),
-    pool.ticks(BigNumber.from(tickUpper))
-  ]);
-  return { slot0, liquidity, feeGrowthGlobal0, feeGrowthGlobal1, tickLowerData, tickUpperData };
+export async function fetchPoolState(poolAddress, tickLower, tickUpper, blockTag = null) {
+    const pool = new ethers.Contract(poolAddress, IUniswapV3PoolABI, provider);
+    const callOptions = blockTag ? { blockTag } : {};
+    const [slot0, liquidity, feeGrowthGlobal0, feeGrowthGlobal1, tickLowerData, tickUpperData] = await Promise.all([
+        pool.slot0(callOptions),
+        pool.liquidity(callOptions),
+        pool.feeGrowthGlobal0X128(callOptions),
+        pool.feeGrowthGlobal1X128(callOptions),
+        pool.ticks(BigNumber.from(tickLower), callOptions),
+        pool.ticks(BigNumber.from(tickUpper), callOptions)
+    ]);
+    return { slot0, liquidity, feeGrowthGlobal0, feeGrowthGlobal1, tickLowerData, tickUpperData };
 }
 
 function computeFeeGrowthInside(tickCurrent, tickLower, tickUpper, feeGrowthGlobal, feeGrowthOutsideLower, feeGrowthOutsideUpper) {
@@ -277,36 +355,36 @@ export async function getTokenSymbol(address) {
 }
 
 export async function computeAmounts(positionData, poolState) {
-  const { token0, token1, feeTier, tickLower, tickUpper, liquidity: posLiq } = positionData;
-  const dec0 = await getTokenDecimals(token0);
-  const dec1 = await getTokenDecimals(token1);
-  const T0 = new Token(CHAIN_ID, token0, dec0);
-  const T1 = new Token(CHAIN_ID, token1, dec1);
+    const { token0, token1, feeTier, tickLower, tickUpper, liquidity: posLiq } = positionData;
+    const dec0 = await getTokenDecimals(token0);
+    const dec1 = await getTokenDecimals(token1);
+    const T0 = new Token(CHAIN_ID, token0, dec0);
+    const T1 = new Token(CHAIN_ID, token1, dec1);
 
-  const sdkPool = new Pool(
-      T0,
-      T1,
-      feeTier,
-      poolState.slot0.sqrtPriceX96.toString(),
-      poolState.liquidity.toString(),
-      Number(poolState.slot0.tick)
-  );
+    const sdkPool = new Pool(
+        T0,
+        T1,
+        feeTier,
+        poolState.slot0.sqrtPriceX96.toString(),
+        poolState.liquidity.toString(),
+        Number(poolState.slot0.tick)
+    );
 
-  const pos = new Position({
-      pool: sdkPool,
-      liquidity: posLiq.toString(),
-      tickLower,
-      tickUpper
-  });
+    const pos = new Position({
+        pool: sdkPool,
+        liquidity: posLiq.toString(),
+        tickLower,
+        tickUpper
+    });
 
-  const { fees0, fees1 } = await computeUncollectedFees(positionData, poolState, dec0, dec1);
+    const { fees0, fees1 } = await computeUncollectedFees(positionData, poolState, dec0, dec1);
 
-  return {
-      amount0: pos.amount0.toSignificant(6),
-      amount1: pos.amount1.toSignificant(6),
-      fees0,
-      fees1
-  };
+    return {
+        amount0: pos.amount0.toSignificant(6),
+        amount1: pos.amount1.toSignificant(6),
+        fees0,
+        fees1
+    };
 }
 
 

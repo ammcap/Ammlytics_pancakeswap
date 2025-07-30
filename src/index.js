@@ -52,6 +52,36 @@ async function main() {
             const cakeEarned = await fetchFarmingRewards(id);
             console.log(` • CAKE earned: ${ethers.utils.formatEther(cakeEarned)}`);
         }
+
+        // New: Initial values
+        const initialAmount0Human = ethers.utils.formatUnits(pos.initialAmount0, dec0);
+        const initialAmount1Human = ethers.utils.formatUnits(pos.initialAmount1, dec1);
+        console.log(`Initial ${sym0} amount: ${initialAmount0Human}`);
+        console.log(`Initial ${sym1} amount: ${initialAmount1Human}`);
+
+        const initialPoolState = await fetchPoolState(poolAddr, pos.tickLower, pos.tickUpper, pos.mintBlock);
+        const initialTick = initialPoolState.slot0.tick;
+        const initialPrice = tickToPrice(initialTick, dec0, dec1);  // Price of token1 in token0
+        console.log(`Initial price: ${initialPrice.toSignificantDigits(6)} ${sym1} per ${sym0}`);
+
+        // Compute initial USD value
+        let initialUsd = new Decimal(0);
+        const token0Lc = pos.token0.toLowerCase();
+        const token1Lc = pos.token1.toLowerCase();
+        const usdcLc = '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'.toLowerCase();  // USDC on Base
+
+        if (token0Lc === usdcLc) {
+            // Value = initialAmount0 + initialAmount1 * initialPrice (token1 in USDC)
+            initialUsd = new Decimal(initialAmount0Human).add(new Decimal(initialAmount1Human).mul(initialPrice));
+        } else if (token1Lc === usdcLc) {
+            // Value = initialAmount1 + initialAmount0 * (1 / initialPrice) (token0 in USDC)
+            const initialPriceInv = new Decimal(1).div(initialPrice);
+            initialUsd = new Decimal(initialAmount1Human).add(new Decimal(initialAmount0Human).mul(initialPriceInv));
+        } else {
+            console.log('Warning: Neither token is USDC; skipping initial USD value.');
+        }
+
+        console.log(`Initial USD value: $${initialUsd.toFixed(2)}`);
     }
 }
 

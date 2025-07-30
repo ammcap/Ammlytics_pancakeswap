@@ -1,0 +1,4060 @@
+{
+  "data": {
+    "__schema": {
+      "types": [
+        {
+          "description": null,
+          "enumValues": [
+            {
+              "description": null,
+              "name": "hour"
+            },
+            {
+              "description": null,
+              "name": "day"
+            }
+          ],
+          "fields": null,
+          "inputFields": null,
+          "kind": "ENUM",
+          "name": "Aggregation_interval"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": null,
+          "inputFields": null,
+          "kind": "SCALAR",
+          "name": "BigDecimal"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": null,
+          "inputFields": null,
+          "kind": "SCALAR",
+          "name": "BigInt"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "description": null,
+              "name": "number_gte",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null
+              }
+            }
+          ],
+          "kind": "INPUT_OBJECT",
+          "name": "BlockChangedFilter"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "description": null,
+              "name": "hash",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "number",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int"
+              }
+            },
+            {
+              "description": null,
+              "name": "number_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int"
+              }
+            }
+          ],
+          "kind": "INPUT_OBJECT",
+          "name": "Block_height"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": null,
+          "inputFields": null,
+          "kind": "SCALAR",
+          "name": "Boolean"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": null,
+          "inputFields": null,
+          "kind": "SCALAR",
+          "name": "Bytes"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": [
+            {
+              "description": null,
+              "name": "id",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Bytes"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "fee",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Int"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "tickSpacing",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Int"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "BigInt"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "BigInt"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Bytes"
+                }
+              }
+            }
+          ],
+          "inputFields": null,
+          "kind": "OBJECT",
+          "name": "FeeAmountEnabled"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "description": null,
+              "name": "id",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "id_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "id_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_not_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "fee",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int"
+              }
+            },
+            {
+              "description": null,
+              "name": "fee_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int"
+              }
+            },
+            {
+              "description": null,
+              "name": "fee_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int"
+              }
+            },
+            {
+              "description": null,
+              "name": "fee_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int"
+              }
+            },
+            {
+              "description": null,
+              "name": "fee_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int"
+              }
+            },
+            {
+              "description": null,
+              "name": "fee_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int"
+              }
+            },
+            {
+              "description": null,
+              "name": "fee_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "fee_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "tickSpacing",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int"
+              }
+            },
+            {
+              "description": null,
+              "name": "tickSpacing_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int"
+              }
+            },
+            {
+              "description": null,
+              "name": "tickSpacing_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int"
+              }
+            },
+            {
+              "description": null,
+              "name": "tickSpacing_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int"
+              }
+            },
+            {
+              "description": null,
+              "name": "tickSpacing_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int"
+              }
+            },
+            {
+              "description": null,
+              "name": "tickSpacing_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int"
+              }
+            },
+            {
+              "description": null,
+              "name": "tickSpacing_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "tickSpacing_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_not_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": "Filter for the block changed event.",
+              "name": "_change_block",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "BlockChangedFilter"
+              }
+            },
+            {
+              "description": null,
+              "name": "and",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "or",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            }
+          ],
+          "kind": "INPUT_OBJECT",
+          "name": "FeeAmountEnabled_filter"
+        },
+        {
+          "description": null,
+          "enumValues": [
+            {
+              "description": null,
+              "name": "id"
+            },
+            {
+              "description": null,
+              "name": "fee"
+            },
+            {
+              "description": null,
+              "name": "tickSpacing"
+            },
+            {
+              "description": null,
+              "name": "blockNumber"
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp"
+            },
+            {
+              "description": null,
+              "name": "transactionHash"
+            }
+          ],
+          "fields": null,
+          "inputFields": null,
+          "kind": "ENUM",
+          "name": "FeeAmountEnabled_orderBy"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": [
+            {
+              "description": null,
+              "name": "id",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Bytes"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "fee",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Int"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "whitelistRequested",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Boolean"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "enabled",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Boolean"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "BigInt"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "BigInt"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Bytes"
+                }
+              }
+            }
+          ],
+          "inputFields": null,
+          "kind": "OBJECT",
+          "name": "FeeAmountExtraInfoUpdated"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "description": null,
+              "name": "id",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "id_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "id_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_not_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "fee",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int"
+              }
+            },
+            {
+              "description": null,
+              "name": "fee_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int"
+              }
+            },
+            {
+              "description": null,
+              "name": "fee_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int"
+              }
+            },
+            {
+              "description": null,
+              "name": "fee_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int"
+              }
+            },
+            {
+              "description": null,
+              "name": "fee_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int"
+              }
+            },
+            {
+              "description": null,
+              "name": "fee_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int"
+              }
+            },
+            {
+              "description": null,
+              "name": "fee_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "fee_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "whitelistRequested",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean"
+              }
+            },
+            {
+              "description": null,
+              "name": "whitelistRequested_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean"
+              }
+            },
+            {
+              "description": null,
+              "name": "whitelistRequested_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "whitelistRequested_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "enabled",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean"
+              }
+            },
+            {
+              "description": null,
+              "name": "enabled_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean"
+              }
+            },
+            {
+              "description": null,
+              "name": "enabled_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "enabled_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_not_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": "Filter for the block changed event.",
+              "name": "_change_block",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "BlockChangedFilter"
+              }
+            },
+            {
+              "description": null,
+              "name": "and",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "or",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            }
+          ],
+          "kind": "INPUT_OBJECT",
+          "name": "FeeAmountExtraInfoUpdated_filter"
+        },
+        {
+          "description": null,
+          "enumValues": [
+            {
+              "description": null,
+              "name": "id"
+            },
+            {
+              "description": null,
+              "name": "fee"
+            },
+            {
+              "description": null,
+              "name": "whitelistRequested"
+            },
+            {
+              "description": null,
+              "name": "enabled"
+            },
+            {
+              "description": null,
+              "name": "blockNumber"
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp"
+            },
+            {
+              "description": null,
+              "name": "transactionHash"
+            }
+          ],
+          "fields": null,
+          "inputFields": null,
+          "kind": "ENUM",
+          "name": "FeeAmountExtraInfoUpdated_orderBy"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": null,
+          "inputFields": null,
+          "kind": "SCALAR",
+          "name": "Float"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": null,
+          "inputFields": null,
+          "kind": "SCALAR",
+          "name": "ID"
+        },
+        {
+          "description": "4 bytes signed integer\n",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": null,
+          "kind": "SCALAR",
+          "name": "Int"
+        },
+        {
+          "description": "8 bytes signed integer\n",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": null,
+          "kind": "SCALAR",
+          "name": "Int8"
+        },
+        {
+          "description": "Defines the order direction, either ascending or descending",
+          "enumValues": [
+            {
+              "description": null,
+              "name": "asc"
+            },
+            {
+              "description": null,
+              "name": "desc"
+            }
+          ],
+          "fields": null,
+          "inputFields": null,
+          "kind": "ENUM",
+          "name": "OrderDirection"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": [
+            {
+              "description": null,
+              "name": "id",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Bytes"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "oldOwner",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Bytes"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "newOwner",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Bytes"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "BigInt"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "BigInt"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Bytes"
+                }
+              }
+            }
+          ],
+          "inputFields": null,
+          "kind": "OBJECT",
+          "name": "OwnerChanged"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "description": null,
+              "name": "id",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "id_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "id_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_not_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "oldOwner",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "oldOwner_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "oldOwner_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "oldOwner_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "oldOwner_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "oldOwner_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "oldOwner_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "oldOwner_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "oldOwner_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "oldOwner_not_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "newOwner",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "newOwner_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "newOwner_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "newOwner_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "newOwner_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "newOwner_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "newOwner_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "newOwner_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "newOwner_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "newOwner_not_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_not_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": "Filter for the block changed event.",
+              "name": "_change_block",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "BlockChangedFilter"
+              }
+            },
+            {
+              "description": null,
+              "name": "and",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "or",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            }
+          ],
+          "kind": "INPUT_OBJECT",
+          "name": "OwnerChanged_filter"
+        },
+        {
+          "description": null,
+          "enumValues": [
+            {
+              "description": null,
+              "name": "id"
+            },
+            {
+              "description": null,
+              "name": "oldOwner"
+            },
+            {
+              "description": null,
+              "name": "newOwner"
+            },
+            {
+              "description": null,
+              "name": "blockNumber"
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp"
+            },
+            {
+              "description": null,
+              "name": "transactionHash"
+            }
+          ],
+          "fields": null,
+          "inputFields": null,
+          "kind": "ENUM",
+          "name": "OwnerChanged_orderBy"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": [
+            {
+              "description": null,
+              "name": "id",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Bytes"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "token0",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Bytes"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "token1",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Bytes"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "fee",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Int"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "tickSpacing",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Int"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "pool",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Bytes"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "BigInt"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "BigInt"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Bytes"
+                }
+              }
+            }
+          ],
+          "inputFields": null,
+          "kind": "OBJECT",
+          "name": "PoolCreated"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "description": null,
+              "name": "id",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "id_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "id_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_not_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "token0",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "token0_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "token0_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "token0_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "token0_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "token0_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "token0_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "token0_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "token0_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "token0_not_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "token1",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "token1_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "token1_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "token1_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "token1_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "token1_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "token1_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "token1_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "token1_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "token1_not_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "fee",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int"
+              }
+            },
+            {
+              "description": null,
+              "name": "fee_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int"
+              }
+            },
+            {
+              "description": null,
+              "name": "fee_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int"
+              }
+            },
+            {
+              "description": null,
+              "name": "fee_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int"
+              }
+            },
+            {
+              "description": null,
+              "name": "fee_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int"
+              }
+            },
+            {
+              "description": null,
+              "name": "fee_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int"
+              }
+            },
+            {
+              "description": null,
+              "name": "fee_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "fee_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "tickSpacing",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int"
+              }
+            },
+            {
+              "description": null,
+              "name": "tickSpacing_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int"
+              }
+            },
+            {
+              "description": null,
+              "name": "tickSpacing_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int"
+              }
+            },
+            {
+              "description": null,
+              "name": "tickSpacing_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int"
+              }
+            },
+            {
+              "description": null,
+              "name": "tickSpacing_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int"
+              }
+            },
+            {
+              "description": null,
+              "name": "tickSpacing_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int"
+              }
+            },
+            {
+              "description": null,
+              "name": "tickSpacing_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "tickSpacing_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "pool",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "pool_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "pool_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "pool_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "pool_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "pool_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "pool_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "pool_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "pool_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "pool_not_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_not_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": "Filter for the block changed event.",
+              "name": "_change_block",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "BlockChangedFilter"
+              }
+            },
+            {
+              "description": null,
+              "name": "and",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "or",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            }
+          ],
+          "kind": "INPUT_OBJECT",
+          "name": "PoolCreated_filter"
+        },
+        {
+          "description": null,
+          "enumValues": [
+            {
+              "description": null,
+              "name": "id"
+            },
+            {
+              "description": null,
+              "name": "token0"
+            },
+            {
+              "description": null,
+              "name": "token1"
+            },
+            {
+              "description": null,
+              "name": "fee"
+            },
+            {
+              "description": null,
+              "name": "tickSpacing"
+            },
+            {
+              "description": null,
+              "name": "pool"
+            },
+            {
+              "description": null,
+              "name": "blockNumber"
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp"
+            },
+            {
+              "description": null,
+              "name": "transactionHash"
+            }
+          ],
+          "fields": null,
+          "inputFields": null,
+          "kind": "ENUM",
+          "name": "PoolCreated_orderBy"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": [
+            {
+              "description": null,
+              "name": "feeAmountEnabled",
+              "type": {
+                "kind": "OBJECT",
+                "name": "FeeAmountEnabled",
+                "ofType": null
+              }
+            },
+            {
+              "description": null,
+              "name": "feeAmountEnableds",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "feeAmountExtraInfoUpdated",
+              "type": {
+                "kind": "OBJECT",
+                "name": "FeeAmountExtraInfoUpdated",
+                "ofType": null
+              }
+            },
+            {
+              "description": null,
+              "name": "feeAmountExtraInfoUpdateds",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "ownerChanged",
+              "type": {
+                "kind": "OBJECT",
+                "name": "OwnerChanged",
+                "ofType": null
+              }
+            },
+            {
+              "description": null,
+              "name": "ownerChangeds",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "poolCreated",
+              "type": {
+                "kind": "OBJECT",
+                "name": "PoolCreated",
+                "ofType": null
+              }
+            },
+            {
+              "description": null,
+              "name": "poolCreateds",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "setLmPoolDeployer",
+              "type": {
+                "kind": "OBJECT",
+                "name": "SetLmPoolDeployer",
+                "ofType": null
+              }
+            },
+            {
+              "description": null,
+              "name": "setLmPoolDeployers",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "whiteListAdded",
+              "type": {
+                "kind": "OBJECT",
+                "name": "WhiteListAdded",
+                "ofType": null
+              }
+            },
+            {
+              "description": null,
+              "name": "whiteListAddeds",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null
+                }
+              }
+            },
+            {
+              "description": "Access to subgraph metadata",
+              "name": "_meta",
+              "type": {
+                "kind": "OBJECT",
+                "name": "_Meta_",
+                "ofType": null
+              }
+            }
+          ],
+          "inputFields": null,
+          "kind": "OBJECT",
+          "name": "Query"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": [
+            {
+              "description": null,
+              "name": "id",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Bytes"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "lmPoolDeployer",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Bytes"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "BigInt"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "BigInt"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Bytes"
+                }
+              }
+            }
+          ],
+          "inputFields": null,
+          "kind": "OBJECT",
+          "name": "SetLmPoolDeployer"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "description": null,
+              "name": "id",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "id_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "id_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_not_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "lmPoolDeployer",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "lmPoolDeployer_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "lmPoolDeployer_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "lmPoolDeployer_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "lmPoolDeployer_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "lmPoolDeployer_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "lmPoolDeployer_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "lmPoolDeployer_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "lmPoolDeployer_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "lmPoolDeployer_not_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_not_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": "Filter for the block changed event.",
+              "name": "_change_block",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "BlockChangedFilter"
+              }
+            },
+            {
+              "description": null,
+              "name": "and",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "or",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            }
+          ],
+          "kind": "INPUT_OBJECT",
+          "name": "SetLmPoolDeployer_filter"
+        },
+        {
+          "description": null,
+          "enumValues": [
+            {
+              "description": null,
+              "name": "id"
+            },
+            {
+              "description": null,
+              "name": "lmPoolDeployer"
+            },
+            {
+              "description": null,
+              "name": "blockNumber"
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp"
+            },
+            {
+              "description": null,
+              "name": "transactionHash"
+            }
+          ],
+          "fields": null,
+          "inputFields": null,
+          "kind": "ENUM",
+          "name": "SetLmPoolDeployer_orderBy"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": null,
+          "inputFields": null,
+          "kind": "SCALAR",
+          "name": "String"
+        },
+        {
+          "description": "A string representation of microseconds UNIX timestamp (16 digits)\n",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": null,
+          "kind": "SCALAR",
+          "name": "Timestamp"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": [
+            {
+              "description": null,
+              "name": "id",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Bytes"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "user",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Bytes"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "verified",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Boolean"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "BigInt"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "BigInt"
+                }
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Bytes"
+                }
+              }
+            }
+          ],
+          "inputFields": null,
+          "kind": "OBJECT",
+          "name": "WhiteListAdded"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "description": null,
+              "name": "id",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "id_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "id_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "id_not_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "user",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "user_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "user_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "user_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "user_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "user_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "user_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "user_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "user_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "user_not_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "verified",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean"
+              }
+            },
+            {
+              "description": null,
+              "name": "verified_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean"
+              }
+            },
+            {
+              "description": null,
+              "name": "verified_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "verified_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "blockNumber_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "BigInt"
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_not",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_gt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_lt",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_gte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_lte",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_not_in",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": null,
+              "name": "transactionHash_not_contains",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes"
+              }
+            },
+            {
+              "description": "Filter for the block changed event.",
+              "name": "_change_block",
+              "type": {
+                "kind": "INPUT_OBJECT",
+                "name": "BlockChangedFilter"
+              }
+            },
+            {
+              "description": null,
+              "name": "and",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            },
+            {
+              "description": null,
+              "name": "or",
+              "type": {
+                "kind": "LIST",
+                "name": null
+              }
+            }
+          ],
+          "kind": "INPUT_OBJECT",
+          "name": "WhiteListAdded_filter"
+        },
+        {
+          "description": null,
+          "enumValues": [
+            {
+              "description": null,
+              "name": "id"
+            },
+            {
+              "description": null,
+              "name": "user"
+            },
+            {
+              "description": null,
+              "name": "verified"
+            },
+            {
+              "description": null,
+              "name": "blockNumber"
+            },
+            {
+              "description": null,
+              "name": "blockTimestamp"
+            },
+            {
+              "description": null,
+              "name": "transactionHash"
+            }
+          ],
+          "fields": null,
+          "inputFields": null,
+          "kind": "ENUM",
+          "name": "WhiteListAdded_orderBy"
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": [
+            {
+              "description": "The hash of the block",
+              "name": "hash",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes",
+                "ofType": null
+              }
+            },
+            {
+              "description": "The block number",
+              "name": "number",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Int"
+                }
+              }
+            },
+            {
+              "description": "Integer representation of the timestamp stored in blocks for the chain",
+              "name": "timestamp",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            {
+              "description": "The hash of the parent block",
+              "name": "parentHash",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Bytes",
+                "ofType": null
+              }
+            }
+          ],
+          "inputFields": null,
+          "kind": "OBJECT",
+          "name": "_Block_"
+        },
+        {
+          "description": "The type for the top-level _meta field",
+          "enumValues": null,
+          "fields": [
+            {
+              "description": "Information about a specific subgraph block. The hash of the block\nwill be null if the _meta field has a block constraint that asks for\na block number. It will be filled if the _meta field has no block constraint\nand therefore asks for the latest  block\n",
+              "name": "block",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "_Block_"
+                }
+              }
+            },
+            {
+              "description": "The deployment ID",
+              "name": "deployment",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String"
+                }
+              }
+            },
+            {
+              "description": "If `true`, the subgraph encountered indexing errors at some past block",
+              "name": "hasIndexingErrors",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Boolean"
+                }
+              }
+            }
+          ],
+          "inputFields": null,
+          "kind": "OBJECT",
+          "name": "_Meta_"
+        },
+        {
+          "description": null,
+          "enumValues": [
+            {
+              "description": "Data will be returned even if the subgraph has indexing errors",
+              "name": "allow"
+            },
+            {
+              "description": "If the subgraph has indexing errors, data will be omitted. The default.",
+              "name": "deny"
+            }
+          ],
+          "fields": null,
+          "inputFields": null,
+          "kind": "ENUM",
+          "name": "_SubgraphErrorPolicy_"
+        }
+      ]
+    }
+  }
+}

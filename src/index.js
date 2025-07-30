@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import Decimal from 'decimal.js';
-import { fetchAllTokenIds, fetchPosition, getPoolAddress, fetchPoolState, computeAmounts, isStaked, fetchFarmingRewards, getTokenSymbol, getTokenDecimals, tickToPrice }
+import { fetchAllTokenIds, fetchPosition, getPoolAddress, fetchPoolState, computeAmounts, isStaked, fetchFarmingRewards, getTokenSymbol, getTokenDecimals, tickToPrice, fetchPositionEvents }
     from './fetchPositions.js';
 import { OWNER_ADDRESS } from './config.js';
 
@@ -81,6 +81,17 @@ async function main() {
         }
 
         console.log(`Initial USD value: $${initialUsd.toFixed(2)}`);
+
+        // New: Fetch and display events
+        const events = await fetchPositionEvents(id, pos.mintBlock, dec0, dec1, sym0, sym1);
+        if (events.length > 0) {
+            console.log('Events:');
+            for (const event of events) {
+                console.log(` - ${event.date}: ${event.type} - ${event.details}`);
+            }
+        } else {
+            console.log('No events found.');
+        }
     }
 }
 

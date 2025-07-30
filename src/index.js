@@ -71,12 +71,11 @@ async function main() {
         const usdcLc = '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'.toLowerCase();  // USDC on Base
 
         if (token0Lc === usdcLc) {
-            // Value = initialAmount0 + initialAmount1 * initialPrice (token1 in USDC)
-            initialUsd = new Decimal(initialAmount0Human).add(new Decimal(initialAmount1Human).mul(initialPrice));
+            // Value = initialAmount0 + initialAmount1 / initialPrice (since initialPrice = token1 / token0 = cbBTC / USDC)
+            initialUsd = new Decimal(initialAmount0Human).add(new Decimal(initialAmount1Human).div(initialPrice));
         } else if (token1Lc === usdcLc) {
-            // Value = initialAmount1 + initialAmount0 * (1 / initialPrice) (token0 in USDC)
-            const initialPriceInv = new Decimal(1).div(initialPrice);
-            initialUsd = new Decimal(initialAmount1Human).add(new Decimal(initialAmount0Human).mul(initialPriceInv));
+            // Value = initialAmount1 + initialAmount0 * initialPrice (initialPrice = token1 / token0 = USDC / token0)
+            initialUsd = new Decimal(initialAmount1Human).add(new Decimal(initialAmount0Human).mul(initialPrice));
         } else {
             console.log('Warning: Neither token is USDC; skipping initial USD value.');
         }

@@ -1,6 +1,6 @@
 import { ethers, BigNumber } from 'ethers';
 import Decimal from 'decimal.js';
-
+import sqlite3 from 'sqlite3';
 import { RPC_URL, CHAIN_ID, OWNER_ADDRESS, CONTRACTS, THEGRAPH_API_KEY } from './config.js';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
@@ -9,7 +9,6 @@ const require = createRequire(import.meta.url);
 const NFTManagerABI = require('@pancakeswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json');
 const FactoryABI = require('@pancakeswap/v3-core/artifacts/contracts/PancakeV3Factory.sol/PancakeV3Factory.json');
 
-// Updated MasterChef ABI with pendingCake and userPositionInfos
 const MasterChefABI = [
     'function userPositionInfos(uint256) view returns (uint128 liquidity, uint128 boostLiquidity, int24 tickLower, int24 tickUpper, uint256 rewardGrowthInside, uint256 reward, address user, uint32 pid, uint256 boostMultiplier)',
     'function pendingCake(uint256 _tokenId) view returns (uint256)',
@@ -17,12 +16,10 @@ const MasterChefABI = [
     'event Withdraw(address indexed user, uint256 indexed tokenId, uint128 liquidity, int24 tickLower, int24 tickUpper)'
 ];
 
-// ERC20 ABI for Transfer
 const ERC20_ABI = [
     'event Transfer(address indexed from, address indexed to, uint256 value)'
 ];
 
-// Minimal ABI for PancakeV3Pool (only needed functions)
 const IUniswapV3PoolABI = [
     'function slot0() view returns (uint160 sqrtPriceX96, int24 tick, uint16 observationIndex, uint16 observationCardinality, uint16 observationCardinalityNext, uint32 feeProtocol, bool unlocked)',
     'function liquidity() view returns (uint128)',
@@ -37,15 +34,20 @@ const IUniswapV3PoolABI = [
 import { Token } from '@pancakeswap/sdk';
 import { Pool, Position } from '@pancakeswap/v3-sdk';
 
+const db = new sqlite3.Database('./ammlytics.db');
+
+db.serialize(() => {
+  db.run("CREATE TABLE IF NOT EXISTS positions (tokenId TEXT PRIMARY KEY, createdTimestamp INTEGER, initialAmount0 TEXT, initialAmount1 TEXT, initialUsd TEXT, tickLower INTEGER, tickUpper INTEGER, token0 TEXT, token1 TEXT, feeTier INTEGER, mintBlock INTEGER)");
+  db.run("CREATE TABLE IF NOT EXISTS events (id INTEGER PRIMARY KEY AUTOINCREMENT, tokenId TEXT, date TEXT, type TEXT, details TEXT)");
+});
+
 const provider = new ethers.providers.JsonRpcProvider(RPC_URL, { chainId: CHAIN_ID, name: 'base' });
 const posMgr = new ethers.Contract(CONTRACTS.POSITION_MANAGER, NFTManagerABI.abi, provider);
 const factory = new ethers.Contract(CONTRACTS.FACTORY, FactoryABI.abi, provider);
 const masterchef = new ethers.Contract(CONTRACTS.MASTERCHEF, MasterChefABI, provider);
 
-// Subgraph endpoint for MasterChefV3 Base
 const MASTERCHEF_SUBGRAPH_ENDPOINT = `https://gateway.thegraph.com/api/${THEGRAPH_API_KEY}/subgraphs/id/3oYoAoCJMV2ZyZSTpg6cUS1gKTzcc2cjmCVfpNyWZVmr`;
 
-// Query subgraph
 async function querySubgraph(endpoint, query, variables) {
   try {
     const response = await fetch(endpoint, {
@@ -72,7 +74,6 @@ async function querySubgraph(endpoint, query, variables) {
   }
 }
 
-// Fetch staked positions from subgraph
 async function fetchStakedPositionsFromSubgraph(owner) {
   const query = `
     query GetUserStakedPositions($user: String!) {
@@ -168,8 +169,6 @@ async function getStakedIds(owner) {
           const tokenId = BigInt(log.topics[2]).toString();
           tokenIds.add(tokenId);
         }
-        const progress = ((currentBlock - endBlock) / lookbackBlocks * 100).toFixed(1);
-        console.log(`Processed Deposit logs for blocks ${startBlock} to ${endBlock} (${tokenIds.size} unique IDs found so far) - ${progress}% complete`);
       } catch (err) {
         console.error(`Error fetching Deposit logs for blocks ${startBlock} to ${endBlock}:`, err);
       }
@@ -205,7 +204,7 @@ export async function fetchAllTokenIds(owner) {
 }
 
 const USDC_ADDRESS = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913';  // USDC on Base
-const CAKE_ADDRESS = '0x3055913c90Fcc1A6CE9a358911721eEb942013A1';  // CAKE on Base (lower case to match)
+const CAKE_ADDRESS = '0x3055913c90fcc1a6ce9a358911721eeb942013a1';  // CAKE on Base
 const TRANSFER_EVENT_SIG = ethers.utils.keccak256(ethers.utils.toUtf8Bytes('Transfer(address,address,uint256)'));
 const ZERO_PADDED = ethers.utils.hexZeroPad('0x0000000000000000000000000000000000000000', 32);
 
@@ -450,7 +449,6 @@ export async function fetchPositionEvents(tokenId, mintBlock, dec0, dec1, sym0, 
       let mgrLogs = [];
       try {
         mgrLogs = await provider.getLogs(mgrFilter);
-        console.log(`Fetched ${mgrLogs.length} PositionManager logs for blocks ${startBlock} to ${endBlock}`);
       } catch (err) {
         console.error(`Error fetching PositionManager logs for blocks ${startBlock} to ${endBlock}:`, err);
       }
@@ -486,7 +484,6 @@ export async function fetchPositionEvents(tokenId, mintBlock, dec0, dec1, sym0, 
       let mcLogs = [];
       try {
         mcLogs = await provider.getLogs(mcFilter);
-        console.log(`Fetched ${mcLogs.length} MasterChef logs for blocks ${startBlock} to ${endBlock}`);
       } catch (err) {
         console.error(`Error fetching MasterChef logs for blocks ${startBlock} to ${endBlock}:`, err);
       }
@@ -507,46 +504,37 @@ export async function fetchPositionEvents(tokenId, mintBlock, dec0, dec1, sym0, 
             }
             events.push({ date, type, details });
           }
-        } catch (parseErr) {
-          console.error(`Error parsing MasterChef log:`, parseErr);
-        }
+        } catch {}
       }
 
-      // CAKE Transfer events (from MasterChef)
+      // CAKE Transfer events (from MasterChef to owner)
       const cakeFilter = {
         address: CAKE_ADDRESS,
-        topics: [TRANSFER_EVENT_SIG, ethers.utils.hexZeroPad(CONTRACTS.MASTERCHEF, 32)],
+        topics: [TRANSFER_EVENT_SIG, ethers.utils.hexZeroPad(CONTRACTS.MASTERCHEF, 32), ethers.utils.hexZeroPad(ownerLower, 32)],
         fromBlock: startBlock,
         toBlock: endBlock
       };
       let cakeLogs = [];
       try {
         cakeLogs = await provider.getLogs(cakeFilter);
-        console.log(`Fetched ${cakeLogs.length} CAKE Transfer logs for blocks ${startBlock} to ${endBlock}`);
       } catch (err) {
         console.error(`Error fetching CAKE Transfer logs for blocks ${startBlock} to ${endBlock}:`, err);
       }
 
       for (const log of cakeLogs) {
-        try {
-          const parsed = ifaceERC20.parseLog(log);
-          if (parsed.args.to.toLowerCase() === ownerLower) {
-            const timestamp = (await provider.getBlock(log.blockNumber)).timestamp;
-            const date = new Date(timestamp * 1000).toLocaleString();
-            const amount = ethers.utils.formatEther(parsed.args.value);
-            events.push({ date, type: 'Fee Claim (CAKE)', details: amount });
-          }
-        } catch (parseErr) {
-          console.error(`Error parsing CAKE Transfer log:`, parseErr);
-        }
+        const parsed = ifaceERC20.parseLog(log);
+        const timestamp = (await provider.getBlock(log.blockNumber)).timestamp;
+        const date = new Date(timestamp * 1000).toLocaleString();
+        const amount = ethers.utils.formatEther(parsed.args.value);
+        events.push({ date, type: 'Fee Claim (CAKE)', details: amount });
       }
     });
   }
 
-  const batchSize = 5;  // Reduced for rate limits
+  const batchSize = 10;  // Increased for efficiency
   for (let i = 0; i < batches.length; i += batchSize) {
     await Promise.all(batches.slice(i, i + batchSize).map(b => b()));
-    await new Promise(r => setTimeout(r, 1000));  // Increased delay
+    await new Promise(r => setTimeout(r, 500));  // Reduced delay
   }
 
   // Sort events by date
@@ -554,3 +542,5 @@ export async function fetchPositionEvents(tokenId, mintBlock, dec0, dec1, sym0, 
 
   return events;
 }
+
+export { posMgr, masterchef };

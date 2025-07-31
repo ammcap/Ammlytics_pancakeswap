@@ -1,6 +1,7 @@
+// src/fetchPositions.js
 import { ethers, BigNumber } from 'ethers';
 import Decimal from 'decimal.js';
-import sqlite3 from 'sqlite3';
+
 import { RPC_URL, CHAIN_ID, OWNER_ADDRESS, CONTRACTS, THEGRAPH_API_KEY } from './config.js';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
@@ -33,13 +34,6 @@ const IUniswapV3PoolABI = [
 
 import { Token } from '@pancakeswap/sdk';
 import { Pool, Position } from '@pancakeswap/v3-sdk';
-
-const db = new sqlite3.Database('./ammlytics.db');
-
-db.serialize(() => {
-  db.run("CREATE TABLE IF NOT EXISTS positions (tokenId TEXT PRIMARY KEY, createdTimestamp INTEGER, initialAmount0 TEXT, initialAmount1 TEXT, initialUsd TEXT, tickLower INTEGER, tickUpper INTEGER, token0 TEXT, token1 TEXT, feeTier INTEGER, mintBlock INTEGER)");
-  db.run("CREATE TABLE IF NOT EXISTS events (id INTEGER PRIMARY KEY AUTOINCREMENT, tokenId TEXT, date TEXT, type TEXT, details TEXT)");
-});
 
 const provider = new ethers.providers.JsonRpcProvider(RPC_URL, { chainId: CHAIN_ID, name: 'base' });
 const posMgr = new ethers.Contract(CONTRACTS.POSITION_MANAGER, NFTManagerABI.abi, provider);
@@ -266,7 +260,7 @@ export async function fetchInitialData(tokenId) {
                   initialAmount1 = parsedLog.args.amount1;
                   break;
               }
-          } catch {}
+            } catch {}
       }
   }
 
@@ -413,14 +407,13 @@ export function tickToPrice(tick, dec0, dec1) {
     return priceAdjusted;
 }
 
-// New: Fetch events for a position
-export async function fetchPositionEvents(tokenId, mintBlock, dec0, dec1, sym0, sym1) {
+export async function fetchPositionEvents(tokenId, startBlock, dec0, dec1, sym0, sym1) {
   const tokenIdBN = BigNumber.from(tokenId);
   const tokenIdPadded = ethers.utils.hexZeroPad(tokenIdBN.toHexString(), 32);
 
   const currentBlock = await provider.getBlockNumber();
   const chunkSize = 500;
-  const startFromBlock = mintBlock;
+  const startFromBlock = startBlock;
   const ifaceMgr = new ethers.utils.Interface(NFTManagerABI.abi);
   const ifaceMC = new ethers.utils.Interface(MasterChefABI);
   const ifaceERC20 = new ethers.utils.Interface(ERC20_ABI);
@@ -449,12 +442,14 @@ export async function fetchPositionEvents(tokenId, mintBlock, dec0, dec1, sym0, 
       let mgrLogs = [];
       try {
         mgrLogs = await provider.getLogs(mgrFilter);
+        console.log(`Fetched ${mgrLogs.length} PositionManager logs for blocks ${startBlock} to ${endBlock}`);
       } catch (err) {
         console.error(`Error fetching PositionManager logs for blocks ${startBlock} to ${endBlock}:`, err);
       }
 
       for (const log of mgrLogs) {
         const parsed = ifaceMgr.parseLog(log);
+        console.log('Parsed mgr log name: ', parsed.name);
         const timestamp = (await provider.getBlock(log.blockNumber)).timestamp;
         const date = new Date(timestamp * 1000).toLocaleString();
         let type, amount0, amount1;
@@ -470,8 +465,10 @@ export async function fetchPositionEvents(tokenId, mintBlock, dec0, dec1, sym0, 
           type = 'Fee Claim (Tokens)';
           amount0 = ethers.utils.formatUnits(parsed.args.amount0, dec0);
           amount1 = ethers.utils.formatUnits(parsed.args.amount1, dec1);
+          console.log('Adding Fee Claim (Tokens): ', amount0, amount1, date);
         }
-        events.push({ date, type, details: `${amount0} ${sym0} / ${amount1} ${sym1}` });
+        const event = { date, type, details: `${amount0} ${sym0} / ${amount1} ${sym1}`, block: log.blockNumber };
+        events.push(event);
       }
 
       // MasterChef events (Deposit/Withdraw)
@@ -484,6 +481,7 @@ export async function fetchPositionEvents(tokenId, mintBlock, dec0, dec1, sym0, 
       let mcLogs = [];
       try {
         mcLogs = await provider.getLogs(mcFilter);
+        console.log(`Fetched ${mcLogs.length} MasterChef logs for blocks ${startBlock} to ${endBlock}`);
       } catch (err) {
         console.error(`Error fetching MasterChef logs for blocks ${startBlock} to ${endBlock}:`, err);
       }
@@ -502,9 +500,12 @@ export async function fetchPositionEvents(tokenId, mintBlock, dec0, dec1, sym0, 
               type = 'Withdrawal (Unstaked)';
               details = parsed.args.liquidity.toString();
             }
-            events.push({ date, type, details });
+            const event = { date, type, details, block: log.blockNumber };
+            events.push(event);
           }
-        } catch {}
+        } catch (parseErr) {
+          console.error(`Error parsing MasterChef log:`, parseErr);
+        }
       }
 
       // CAKE Transfer events (from MasterChef to owner)
@@ -517,6 +518,7 @@ export async function fetchPositionEvents(tokenId, mintBlock, dec0, dec1, sym0, 
       let cakeLogs = [];
       try {
         cakeLogs = await provider.getLogs(cakeFilter);
+        console.log(`Fetched ${cakeLogs.length} CAKE Transfer logs for blocks ${startBlock} to ${endBlock}`);
       } catch (err) {
         console.error(`Error fetching CAKE Transfer logs for blocks ${startBlock} to ${endBlock}:`, err);
       }
@@ -526,19 +528,24 @@ export async function fetchPositionEvents(tokenId, mintBlock, dec0, dec1, sym0, 
         const timestamp = (await provider.getBlock(log.blockNumber)).timestamp;
         const date = new Date(timestamp * 1000).toLocaleString();
         const amount = ethers.utils.formatEther(parsed.args.value);
-        events.push({ date, type: 'Fee Claim (CAKE)', details: amount });
+        const event = { date, type: 'Fee Claim (CAKE)', details: amount, block: log.blockNumber };
+        events.push(event);
       }
     });
   }
 
-  const batchSize = 10;  // Increased for efficiency
+  const batchSize = 5;  // Reduced for rate limits
   for (let i = 0; i < batches.length; i += batchSize) {
     await Promise.all(batches.slice(i, i + batchSize).map(b => b()));
-    await new Promise(r => setTimeout(r, 500));  // Reduced delay
+    await new Promise(r => setTimeout(r, 1000));  // Increased delay
   }
+
+  console.log('Events before sort: ', events);
 
   // Sort events by date
   events.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  console.log('Events after sort: ', events);
 
   return events;
 }

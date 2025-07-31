@@ -8,10 +8,8 @@ import { OWNER_ADDRESS } from './config.js';
 const db = new sqlite3.Database('./ammlytics.db');
 
 db.serialize(() => {
-  db.run("DROP TABLE IF EXISTS positions");
-  db.run("DROP TABLE IF EXISTS events");
-  db.run("CREATE TABLE IF NOT EXISTS positions (tokenId TEXT PRIMARY KEY, createdTimestamp INTEGER, initialAmount0 TEXT, initialAmount1 TEXT, initialUsd TEXT, tickLower INTEGER, tickUpper INTEGER, token0 TEXT, token1 TEXT, feeTier INTEGER, mintBlock INTEGER, feeGrowthInside0Last TEXT, feeGrowthInside1Last TEXT)");
-  db.run("CREATE TABLE IF NOT EXISTS events (id INTEGER PRIMARY KEY AUTOINCREMENT, tokenId TEXT, date TEXT, type TEXT, details TEXT)");
+  db.run("CREATE TABLE IF NOT EXISTS positions (tokenId TEXT PRIMARY KEY, createdTimestamp INTEGER, initialAmount0 TEXT, initialAmount1 TEXT, initialUsd TEXT, tickLower INTEGER, tickUpper INTEGER, token0 TEXT, token1 TEXT, feeTier INTEGER, mintBlock INTEGER)");
+  db.run("CREATE TABLE IF NOT EXISTS events (id INTEGER PRIMARY KEY AUTOINCREMENT, tokenId TEXT, date TEXT, type TEXT, details TEXT, block INTEGER)");
 });
 
 async function getPositionFromDB(tokenId) {
@@ -24,8 +22,8 @@ async function getPositionFromDB(tokenId) {
 }
 
 async function storePosition(tokenId, data, initialUsd) {
-  db.run("INSERT OR REPLACE INTO positions (tokenId, createdTimestamp, initialAmount0, initialAmount1, initialUsd, tickLower, tickUpper, token0, token1, feeTier, mintBlock, feeGrowthInside0Last, feeGrowthInside1Last) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
-    [tokenId, data.timestamp, data.initialAmount0.toString(), data.initialAmount1.toString(), initialUsd.toString(), data.tickLower, data.tickUpper, data.token0, data.token1, data.feeTier, data.mintBlock, data.feeGrowthInside0Last.toString(), data.feeGrowthInside1Last.toString()]);
+  db.run("INSERT OR REPLACE INTO positions (tokenId, createdTimestamp, initialAmount0, initialAmount1, initialUsd, tickLower, tickUpper, token0, token1, feeTier, mintBlock) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
+    [tokenId, data.timestamp, data.initialAmount0.toString(), data.initialAmount1.toString(), initialUsd.toString(), data.tickLower, data.tickUpper, data.token0, data.token1, data.feeTier, data.mintBlock]);
 }
 
 async function getEventsFromDB(tokenId) {
@@ -37,10 +35,18 @@ async function getEventsFromDB(tokenId) {
   });
 }
 
-async function storeEvents(tokenId, events) {
-  db.run("DELETE FROM events WHERE tokenId = ?", [tokenId]);
-  for (const event of events) {
-    db.run("INSERT INTO events (tokenId, date, type, details) VALUES (?, ?, ?, ?)", [tokenId, event.date, event.type, event.details]);
+async function getMaxEventBlockFromDB(tokenId) {
+  return new Promise((resolve) => {
+    db.get("SELECT MAX(block) AS maxBlock FROM events WHERE tokenId = ?", [tokenId], (err, row) => {
+      if (err) console.error(err);
+      resolve(row.maxBlock || 0);
+    });
+  });
+}
+
+async function storeNewEvents(tokenId, newEvents) {
+  for (const event of newEvents) {
+    db.run("INSERT INTO events (tokenId, date, type, details, block) VALUES (?, ?, ?, ?, ?)", [tokenId, event.date, event.type, event.details, event.block]);
   }
 }
 
@@ -64,8 +70,6 @@ async function main() {
           pos.initialAmount1 = BigNumber.from(pos.initialAmount1);
           pos.initialUsd = new Decimal(pos.initialUsd);
           pos.timestamp = Number(pos.createdTimestamp);
-          pos.feeGrowthInside0Last = BigNumber.from(pos.feeGrowthInside0Last);
-          pos.feeGrowthInside1Last = BigNumber.from(pos.feeGrowthInside1Last);
         }
         const sym0 = await getTokenSymbol(pos.token0);
         const sym1 = await getTokenSymbol(pos.token1);
@@ -88,7 +92,12 @@ async function main() {
         const poolAddr = await getPoolAddress(pos.token0, pos.token1, pos.feeTier);
         console.log(`Pool: ${poolAddr}`);
         const poolState = await fetchPoolState(poolAddr, pos.tickLower, pos.tickUpper);
-        let liquidity = await posMgr.positions(id)[7];
+        const raw = await posMgr.positions(id);
+        pos.feeGrowthInside0Last = raw[8];
+        pos.feeGrowthInside1Last = raw[9];
+        pos.owed0 = raw[10];
+        pos.owed1 = raw[11];
+        let liquidity = raw[7];
         let earned = BigNumber.from(0);
         if (staked) {
           const info = await masterchef.userPositionInfos(id);
@@ -138,15 +147,25 @@ async function main() {
         console.log(`Initial USD value: $${initialUsd.toFixed(2)}`);
 
         let events = await getEventsFromDB(id);
-        if (isNew || !events.length) {
-          events = await fetchPositionEvents(id, pos.mintBlock, dec0, dec1, sym0, sym1);
-          await storeEvents(id, events);
+        const maxBlock = await getMaxEventBlockFromDB(id);
+        const newStart = maxBlock > 0 ? maxBlock + 1 : pos.mintBlock;
+        const newEvents = await fetchPositionEvents(id, newStart, dec0, dec1, sym0, sym1);
+        if (newEvents.length > 0) {
+          await storeNewEvents(id, newEvents);
+          events = await getEventsFromDB(id);
         }
         if (events.length > 0) {
           console.log('Events:');
           for (const event of events) {
             console.log(` - ${event.date}: ${event.type} - ${event.details}`);
           }
+          let totalCake = new Decimal(0);
+          events.forEach(e => {
+            if (e.type === 'Fee Claim (CAKE)') {
+              totalCake = totalCake.add(new Decimal(e.details));
+            }
+          });
+          console.log(`Total CAKE earned (claimed): ${totalCake.toFixed(6)}`);
         } else {
           console.log('No events found.');
         }

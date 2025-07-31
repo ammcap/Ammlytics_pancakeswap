@@ -412,6 +412,13 @@ export async function fetchPositionEvents(tokenId, startBlock, dec0, dec1, sym0,
   const tokenIdPadded = ethers.utils.hexZeroPad(tokenIdBN.toHexString(), 32);
 
   const currentBlock = await provider.getBlockNumber();
+
+  let endBlock = currentBlock;
+  if (startBlock > currentBlock) {
+    console.log(`No new blocks to query for tokenId ${tokenId} (start: ${startBlock}, current: ${currentBlock})`);
+    return { newEvents: [], endBlock };
+  }
+
   const chunkSize = 500;
   const startFromBlock = startBlock;
   const ifaceMgr = new ethers.utils.Interface(NFTManagerABI.abi);
@@ -547,7 +554,7 @@ export async function fetchPositionEvents(tokenId, startBlock, dec0, dec1, sym0,
 
   console.log('Events after sort: ', events);
 
-  return events;
+ return { newEvents: events, endBlock: currentBlock };
 }
 
 export { posMgr, masterchef };

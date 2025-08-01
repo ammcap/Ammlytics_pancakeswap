@@ -11,25 +11,25 @@ const NFTManagerABI = require('@pancakeswap/v3-periphery/artifacts/contracts/Non
 const FactoryABI = require('@pancakeswap/v3-core/artifacts/contracts/PancakeV3Factory.sol/PancakeV3Factory.json');
 
 const MasterChefABI = [
-    'function userPositionInfos(uint256) view returns (uint128 liquidity, uint128 boostLiquidity, int24 tickLower, int24 tickUpper, uint256 rewardGrowthInside, uint256 reward, address user, uint32 pid, uint256 boostMultiplier)',
-    'function pendingCake(uint256 _tokenId) view returns (uint256)',
-    'event Deposit(address indexed user, uint256 indexed tokenId, uint128 liquidity, int24 tickLower, int24 tickUpper)',
-    'event Withdraw(address indexed user, uint256 indexed tokenId, uint128 liquidity, int24 tickLower, int24 tickUpper)'
+  'function userPositionInfos(uint256) view returns (uint128 liquidity, uint128 boostLiquidity, int24 tickLower, int24 tickUpper, uint256 rewardGrowthInside, uint256 reward, address user, uint32 pid, uint256 boostMultiplier)',
+  'function pendingCake(uint256 _tokenId) view returns (uint256)',
+  'event Deposit(address indexed user, uint256 indexed tokenId, uint128 liquidity, int24 tickLower, int24 tickUpper)',
+  'event Withdraw(address indexed user, uint256 indexed tokenId, uint128 liquidity, int24 tickLower, int24 tickUpper)'
 ];
 
 const ERC20_ABI = [
-    'event Transfer(address indexed from, address indexed to, uint256 value)'
+  'event Transfer(address indexed from, address indexed to, uint256 value)'
 ];
 
 const IUniswapV3PoolABI = [
-    'function slot0() view returns (uint160 sqrtPriceX96, int24 tick, uint16 observationIndex, uint16 observationCardinality, uint16 observationCardinalityNext, uint32 feeProtocol, bool unlocked)',
-    'function liquidity() view returns (uint128)',
-    'function feeGrowthGlobal0X128() view returns (uint256)',
-    'function feeGrowthGlobal1X128() view returns (uint256)',
-    'function ticks(int24) view returns (uint128 liquidityGross, int128 liquidityNet, uint256 feeGrowthOutside0X128, uint256 feeGrowthOutside1X128, int56 tickCumulativeOutside, uint160 secondsPerLiquidityOutsideX128, uint32 secondsOutside, bool initialized)',
-    'function token0() view returns (address)',
-    'function token1() view returns (address)',
-    'function fee() view returns (uint24)'
+  'function slot0() view returns (uint160 sqrtPriceX96, int24 tick, uint16 observationIndex, uint16 observationCardinality, uint16 observationCardinalityNext, uint32 feeProtocol, bool unlocked)',
+  'function liquidity() view returns (uint128)',
+  'function feeGrowthGlobal0X128() view returns (uint256)',
+  'function feeGrowthGlobal1X128() view returns (uint256)',
+  'function ticks(int24) view returns (uint128 liquidityGross, int128 liquidityNet, uint256 feeGrowthOutside0X128, uint256 feeGrowthOutside1X128, int56 tickCumulativeOutside, uint160 secondsPerLiquidityOutsideX128, uint32 secondsOutside, bool initialized)',
+  'function token0() view returns (address)',
+  'function token1() view returns (address)',
+  'function fee() view returns (uint24)'
 ];
 
 import { Token } from '@pancakeswap/sdk';
@@ -46,7 +46,7 @@ async function querySubgraph(endpoint, query, variables) {
   try {
     const response = await fetch(endpoint, {
       method: 'POST',
-      headers: { 
+      headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${THEGRAPH_API_KEY}`
       },
@@ -141,7 +141,7 @@ async function getStakedIds(owner) {
   const ownerPadded = ethers.utils.hexZeroPad(lowerOwner, 32);
 
   const currentBlock = await provider.getBlockNumber();
-  const chunkSize = 500;
+  const chunkSize = 2000;
   const lookbackBlocks = 100000;  // ~2 days on Base; adjust if needed
   const startFromBlock = Math.max(17467449, currentBlock - lookbackBlocks);  // MasterChef V3 deployment or recent
 
@@ -235,14 +235,14 @@ export async function fetchInitialData(tokenId) {
 
   // Single-block log search for the mint Transfer event
   const filter = {
-      address: CONTRACTS.POSITION_MANAGER,
-      topics: [TRANSFER_EVENT_SIG, ZERO_PADDED, null, tokenIdPadded],
-      fromBlock: mintBlock,
-      toBlock: mintBlock
+    address: CONTRACTS.POSITION_MANAGER,
+    topics: [TRANSFER_EVENT_SIG, ZERO_PADDED, null, tokenIdPadded],
+    fromBlock: mintBlock,
+    toBlock: mintBlock
   };
   const logs = await provider.getLogs(filter);
   if (logs.length === 0) {
-      throw new Error(`No mint event found in block ${mintBlock} for tokenId ${tokenId}`);
+    throw new Error(`No mint event found in block ${mintBlock} for tokenId ${tokenId}`);
   }
 
   // Get tx receipt and parse IncreaseLiquidity
@@ -252,20 +252,20 @@ export async function fetchInitialData(tokenId) {
   let initialAmount0, initialAmount1;
   const iface = new ethers.utils.Interface(NFTManagerABI.abi);
   for (const log of receipt.logs) {
-      if (log.address.toLowerCase() === CONTRACTS.POSITION_MANAGER.toLowerCase()) {
-          try {
-              const parsedLog = iface.parseLog(log);
-              if (parsedLog.name === 'IncreaseLiquidity' && parsedLog.args.tokenId.eq(tokenIdBN)) {
-                  initialAmount0 = parsedLog.args.amount0;
-                  initialAmount1 = parsedLog.args.amount1;
-                  break;
-              }
-            } catch {}
-      }
+    if (log.address.toLowerCase() === CONTRACTS.POSITION_MANAGER.toLowerCase()) {
+      try {
+        const parsedLog = iface.parseLog(log);
+        if (parsedLog.name === 'IncreaseLiquidity' && parsedLog.args.tokenId.eq(tokenIdBN)) {
+          initialAmount0 = parsedLog.args.amount0;
+          initialAmount1 = parsedLog.args.amount1;
+          break;
+        }
+      } catch { }
+    }
   }
 
   if (!initialAmount0 || !initialAmount1) {
-      throw new Error(`No IncreaseLiquidity event found in mint tx for tokenId ${tokenId}`);
+    throw new Error(`No IncreaseLiquidity event found in mint tx for tokenId ${tokenId}`);
   }
 
   return { initialAmount0, initialAmount1, mintTimestamp, mintBlock };
@@ -279,23 +279,23 @@ export async function fetchPosition(tokenId) {
   const initial = await fetchInitialData(tokenId);  // New call
 
   return {
-      tokenId,
-      token0: raw[2],
-      token1: raw[3],
-      feeTier: Number(raw[4]),
-      tickLower: subgraphPos ? Number(subgraphPos.tickLower) : Number(raw[5]),
-      tickUpper: subgraphPos ? Number(subgraphPos.tickUpper) : Number(raw[6]),
-      liquidity: subgraphPos ? BigNumber.from(subgraphPos.liquidity) : raw[7],
-      feeGrowthInside0Last: raw[8],
-      feeGrowthInside1Last: raw[9],
-      owed0: raw[10],
-      owed1: raw[11],
-      earned: subgraphPos ? BigNumber.from(subgraphPos.earned) : await fetchFarmingRewards(tokenId),
-      v3Pool: subgraphPos?.pool?.v3Pool,
-      timestamp: initial.mintTimestamp,
-      initialAmount0: initial.initialAmount0,
-      initialAmount1: initial.initialAmount1,
-      mintBlock: initial.mintBlock
+    tokenId,
+    token0: raw[2],
+    token1: raw[3],
+    feeTier: Number(raw[4]),
+    tickLower: subgraphPos ? Number(subgraphPos.tickLower) : Number(raw[5]),
+    tickUpper: subgraphPos ? Number(subgraphPos.tickUpper) : Number(raw[6]),
+    liquidity: subgraphPos ? BigNumber.from(subgraphPos.liquidity) : raw[7],
+    feeGrowthInside0Last: raw[8],
+    feeGrowthInside1Last: raw[9],
+    owed0: raw[10],
+    owed1: raw[11],
+    earned: subgraphPos ? BigNumber.from(subgraphPos.earned) : await fetchFarmingRewards(tokenId),
+    v3Pool: subgraphPos?.pool?.v3Pool,
+    timestamp: initial.mintTimestamp,
+    initialAmount0: initial.initialAmount0,
+    initialAmount1: initial.initialAmount1,
+    mintBlock: initial.mintBlock
   };
 }
 
@@ -305,17 +305,17 @@ export async function getPoolAddress(token0, token1, feeTier, v3PoolFromSubgraph
 }
 
 export async function fetchPoolState(poolAddress, tickLower, tickUpper, blockTag = null) {
-    const pool = new ethers.Contract(poolAddress, IUniswapV3PoolABI, provider);
-    const callOptions = blockTag ? { blockTag } : {};
-    const [slot0, liquidity, feeGrowthGlobal0, feeGrowthGlobal1, tickLowerData, tickUpperData] = await Promise.all([
-        pool.slot0(callOptions),
-        pool.liquidity(callOptions),
-        pool.feeGrowthGlobal0X128(callOptions),
-        pool.feeGrowthGlobal1X128(callOptions),
-        pool.ticks(BigNumber.from(tickLower), callOptions),
-        pool.ticks(BigNumber.from(tickUpper), callOptions)
-    ]);
-    return { slot0, liquidity, feeGrowthGlobal0, feeGrowthGlobal1, tickLowerData, tickUpperData };
+  const pool = new ethers.Contract(poolAddress, IUniswapV3PoolABI, provider);
+  const callOptions = blockTag ? { blockTag } : {};
+  const [slot0, liquidity, feeGrowthGlobal0, feeGrowthGlobal1, tickLowerData, tickUpperData] = await Promise.all([
+    pool.slot0(callOptions),
+    pool.liquidity(callOptions),
+    pool.feeGrowthGlobal0X128(callOptions),
+    pool.feeGrowthGlobal1X128(callOptions),
+    pool.ticks(BigNumber.from(tickLower), callOptions),
+    pool.ticks(BigNumber.from(tickUpper), callOptions)
+  ]);
+  return { slot0, liquidity, feeGrowthGlobal0, feeGrowthGlobal1, tickLowerData, tickUpperData };
 }
 
 function computeFeeGrowthInside(tickCurrent, tickLower, tickUpper, feeGrowthGlobal, feeGrowthOutsideLower, feeGrowthOutsideUpper) {
@@ -340,8 +340,8 @@ async function computeUncollectedFees(positionData, poolState, dec0, dec1) {
   const unclaimed1 = delta1.gt(0) ? delta1.mul(liquidity).div(Q128).add(owed1) : owed1;
 
   return {
-      fees0: ethers.utils.formatUnits(unclaimed0, dec0),
-      fees1: ethers.utils.formatUnits(unclaimed1, dec1)
+    fees0: ethers.utils.formatUnits(unclaimed0, dec0),
+    fees1: ethers.utils.formatUnits(unclaimed1, dec1)
   };
 }
 
@@ -356,36 +356,36 @@ export async function getTokenSymbol(address) {
 }
 
 export async function computeAmounts(positionData, poolState) {
-    const { token0, token1, feeTier, tickLower, tickUpper, liquidity: posLiq } = positionData;
-    const dec0 = await getTokenDecimals(token0);
-    const dec1 = await getTokenDecimals(token1);
-    const T0 = new Token(CHAIN_ID, token0, dec0);
-    const T1 = new Token(CHAIN_ID, token1, dec1);
+  const { token0, token1, feeTier, tickLower, tickUpper, liquidity: posLiq } = positionData;
+  const dec0 = await getTokenDecimals(token0);
+  const dec1 = await getTokenDecimals(token1);
+  const T0 = new Token(CHAIN_ID, token0, dec0);
+  const T1 = new Token(CHAIN_ID, token1, dec1);
 
-    const sdkPool = new Pool(
-        T0,
-        T1,
-        feeTier,
-        poolState.slot0.sqrtPriceX96.toString(),
-        poolState.liquidity.toString(),
-        Number(poolState.slot0.tick)
-    );
+  const sdkPool = new Pool(
+    T0,
+    T1,
+    feeTier,
+    poolState.slot0.sqrtPriceX96.toString(),
+    poolState.liquidity.toString(),
+    Number(poolState.slot0.tick)
+  );
 
-    const pos = new Position({
-        pool: sdkPool,
-        liquidity: posLiq.toString(),
-        tickLower,
-        tickUpper
-    });
+  const pos = new Position({
+    pool: sdkPool,
+    liquidity: posLiq.toString(),
+    tickLower,
+    tickUpper
+  });
 
-    const { fees0, fees1 } = await computeUncollectedFees(positionData, poolState, dec0, dec1);
+  const { fees0, fees1 } = await computeUncollectedFees(positionData, poolState, dec0, dec1);
 
-    return {
-        amount0: pos.amount0.toSignificant(6),
-        amount1: pos.amount1.toSignificant(6),
-        fees0,
-        fees1
-    };
+  return {
+    amount0: pos.amount0.toSignificant(6),
+    amount1: pos.amount1.toSignificant(6),
+    fees0,
+    fees1
+  };
 }
 
 
@@ -400,11 +400,11 @@ export async function fetchFarmingRewards(tokenId) {
 }
 
 export function tickToPrice(tick, dec0, dec1) {
-    // The price of token1 in terms of token0 is 1.0001^tick
-    // We need to adjust for the token decimals.
-    const price = new Decimal(1.0001).pow(tick);
-    const priceAdjusted = price.div(new Decimal(10).pow(dec1 - dec0));
-    return priceAdjusted;
+  // The price of token1 in terms of token0 is 1.0001^tick
+  // We need to adjust for the token decimals.
+  const price = new Decimal(1.0001).pow(tick);
+  const priceAdjusted = price.div(new Decimal(10).pow(dec1 - dec0));
+  return priceAdjusted;
 }
 
 export async function fetchPositionEvents(tokenId, startBlock, dec0, dec1, sym0, sym1) {
@@ -412,19 +412,18 @@ export async function fetchPositionEvents(tokenId, startBlock, dec0, dec1, sym0,
   const tokenIdPadded = ethers.utils.hexZeroPad(tokenIdBN.toHexString(), 32);
 
   const currentBlock = await provider.getBlockNumber();
-
   let endBlock = currentBlock;
   if (startBlock > currentBlock) {
     console.log(`No new blocks to query for tokenId ${tokenId} (start: ${startBlock}, current: ${currentBlock})`);
     return { newEvents: [], endBlock };
   }
 
-  const chunkSize = 500;
-  const startFromBlock = startBlock;
+  const chunkSize = 499;  // Updated here
   const ifaceMgr = new ethers.utils.Interface(NFTManagerABI.abi);
   const ifaceMC = new ethers.utils.Interface(MasterChefABI);
   const ifaceERC20 = new ethers.utils.Interface(ERC20_ABI);
   const ownerLower = OWNER_ADDRESS.toLowerCase();
+  const ownerPadded = ethers.utils.hexZeroPad(ownerLower, 32);
 
   // Event signatures
   const increaseSig = ethers.utils.keccak256(ethers.utils.toUtf8Bytes('IncreaseLiquidity(uint256,uint128,uint256,uint256)'));
@@ -436,22 +435,22 @@ export async function fetchPositionEvents(tokenId, startBlock, dec0, dec1, sym0,
   const events = [];
 
   const batches = [];
-  for (let endBlock = currentBlock; endBlock > startFromBlock; endBlock -= chunkSize) {
-    const startBlock = Math.max(startFromBlock, endBlock - chunkSize + 1);
+  for (let endBlockChunk = currentBlock; endBlockChunk >= startBlock; endBlockChunk -= chunkSize) {
+    const startBlockChunk = Math.max(startBlock, endBlockChunk - chunkSize + 1);
     batches.push(async () => {
       // PositionManager events
       const mgrFilter = {
         address: CONTRACTS.POSITION_MANAGER,
         topics: [[increaseSig, decreaseSig, collectSig], tokenIdPadded],
-        fromBlock: startBlock,
-        toBlock: endBlock
+        fromBlock: '0x' + startBlockChunk.toString(16),
+        toBlock: '0x' + endBlockChunk.toString(16)
       };
       let mgrLogs = [];
       try {
         mgrLogs = await provider.getLogs(mgrFilter);
-        console.log(`Fetched ${mgrLogs.length} PositionManager logs for blocks ${startBlock} to ${endBlock}`);
+        console.log(`Fetched ${mgrLogs.length} PositionManager logs for blocks ${startBlockChunk} to ${endBlockChunk}`);
       } catch (err) {
-        console.error(`Error fetching PositionManager logs for blocks ${startBlock} to ${endBlock}:`, err);
+        console.error(`Error fetching PositionManager logs for blocks ${startBlockChunk} to ${endBlockChunk}:`, err);
       }
 
       for (const log of mgrLogs) {
@@ -481,35 +480,32 @@ export async function fetchPositionEvents(tokenId, startBlock, dec0, dec1, sym0,
       // MasterChef events (Deposit/Withdraw)
       const mcFilter = {
         address: CONTRACTS.MASTERCHEF,
-        topics: [[depositSig, withdrawSig]],
-        fromBlock: startBlock,
-        toBlock: endBlock
+        topics: [[depositSig, withdrawSig], ownerPadded, tokenIdPadded],
+        fromBlock: '0x' + startBlockChunk.toString(16),
+        toBlock: '0x' + endBlockChunk.toString(16)
       };
       let mcLogs = [];
       try {
         mcLogs = await provider.getLogs(mcFilter);
-        console.log(`Fetched ${mcLogs.length} MasterChef logs for blocks ${startBlock} to ${endBlock}`);
+        console.log(`Fetched ${mcLogs.length} MasterChef logs for blocks ${startBlockChunk} to ${endBlockChunk}`);
       } catch (err) {
-        console.error(`Error fetching MasterChef logs for blocks ${startBlock} to ${endBlock}:`, err);
+        console.error(`Error fetching MasterChef logs for blocks ${startBlockChunk} to ${endBlockChunk}:`, err);
       }
-
       for (const log of mcLogs) {
         try {
           const parsed = ifaceMC.parseLog(log);
-          if (parsed.args.tokenId.eq(tokenIdBN)) {
-            const timestamp = (await provider.getBlock(log.blockNumber)).timestamp;
-            const date = new Date(timestamp * 1000).toLocaleString();
-            let type, details;
-            if (parsed.name === 'Deposit') {
-              type = 'Deposit (Staked)';
-              details = parsed.args.liquidity.toString();
-            } else if (parsed.name === 'Withdraw') {
-              type = 'Withdrawal (Unstaked)';
-              details = parsed.args.liquidity.toString();
-            }
-            const event = { date, type, details, block: log.blockNumber };
-            events.push(event);
+          const timestamp = (await provider.getBlock(log.blockNumber)).timestamp;
+          const date = new Date(timestamp * 1000).toLocaleString();
+          let type, details;
+          if (parsed.name === 'Deposit') {
+            type = 'Deposit (Staked)';
+            details = parsed.args.liquidity.toString();
+          } else if (parsed.name === 'Withdraw') {
+            type = 'Withdrawal (Unstaked)';
+            details = parsed.args.liquidity.toString();
           }
+          const event = { date, type, details, block: log.blockNumber };
+          events.push(event);
         } catch (parseErr) {
           console.error(`Error parsing MasterChef log:`, parseErr);
         }
@@ -518,16 +514,16 @@ export async function fetchPositionEvents(tokenId, startBlock, dec0, dec1, sym0,
       // CAKE Transfer events (from MasterChef to owner)
       const cakeFilter = {
         address: CAKE_ADDRESS,
-        topics: [TRANSFER_EVENT_SIG, ethers.utils.hexZeroPad(CONTRACTS.MASTERCHEF, 32), ethers.utils.hexZeroPad(ownerLower, 32)],
-        fromBlock: startBlock,
-        toBlock: endBlock
+        topics: [TRANSFER_EVENT_SIG, ethers.utils.hexZeroPad(CONTRACTS.MASTERCHEF, 32), ownerPadded],
+        fromBlock: '0x' + startBlockChunk.toString(16),
+        toBlock: '0x' + endBlockChunk.toString(16)
       };
       let cakeLogs = [];
       try {
         cakeLogs = await provider.getLogs(cakeFilter);
-        console.log(`Fetched ${cakeLogs.length} CAKE Transfer logs for blocks ${startBlock} to ${endBlock}`);
+        console.log(`Fetched ${cakeLogs.length} CAKE Transfer logs for blocks ${startBlockChunk} to ${endBlockChunk}`);
       } catch (err) {
-        console.error(`Error fetching CAKE Transfer logs for blocks ${startBlock} to ${endBlock}:`, err);
+        console.error(`Error fetching CAKE Transfer logs for blocks ${startBlockChunk} to ${endBlockChunk}:`, err);
       }
 
       for (const log of cakeLogs) {
@@ -541,10 +537,11 @@ export async function fetchPositionEvents(tokenId, startBlock, dec0, dec1, sym0,
     });
   }
 
-  const batchSize = 5;  // Reduced for rate limits
+  // Process batches in smaller groups to avoid rate limits
+  const batchSize = 10;  // Adjust down if rate limits hit (e.g., to 10)
   for (let i = 0; i < batches.length; i += batchSize) {
     await Promise.all(batches.slice(i, i + batchSize).map(b => b()));
-    await new Promise(r => setTimeout(r, 1000));  // Increased delay
+    await new Promise(r => setTimeout(r, 200));  // Delay between batches
   }
 
   console.log('Events before sort: ', events);
@@ -554,7 +551,7 @@ export async function fetchPositionEvents(tokenId, startBlock, dec0, dec1, sym0,
 
   console.log('Events after sort: ', events);
 
- return { newEvents: events, endBlock: currentBlock };
+  return { newEvents: events, endBlock: currentBlock };
 }
 
 export { posMgr, masterchef };

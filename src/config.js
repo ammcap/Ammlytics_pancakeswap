@@ -5,6 +5,7 @@ export const RPC_URL       = process.env.RPC_URL;
 export const OWNER_ADDRESS = process.env.OWNER_ADDRESS;
 export const CHAIN_ID      = Number(process.env.CHAIN_ID) || 8453;
 export const THEGRAPH_API_KEY = process.env.THEGRAPH_API_KEY;
+export const BASESCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
 
 export const CONTRACTS = {
   POSITION_MANAGER: '0x46A15B0b27311cedF172AB29E4f4766fbE7F4364',

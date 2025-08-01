@@ -1,8 +1,8 @@
 // src/fetchPositions.js
 import { ethers, BigNumber } from 'ethers';
 import Decimal from 'decimal.js';
-
-import { RPC_URL, CHAIN_ID, OWNER_ADDRESS, CONTRACTS, THEGRAPH_API_KEY } from './config.js';
+import fetch from 'node-fetch';  // For Node <18; if using Node 18+, global fetch works
+import { RPC_URL, CHAIN_ID, OWNER_ADDRESS, CONTRACTS, THEGRAPH_API_KEY, BASESCAN_API_KEY } from './config.js';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 
@@ -418,14 +418,13 @@ export async function fetchPositionEvents(tokenId, startBlock, dec0, dec1, sym0,
     return { newEvents: [], endBlock };
   }
 
-  const chunkSize = 499;  // Updated here
   const ifaceMgr = new ethers.utils.Interface(NFTManagerABI.abi);
   const ifaceMC = new ethers.utils.Interface(MasterChefABI);
   const ifaceERC20 = new ethers.utils.Interface(ERC20_ABI);
   const ownerLower = OWNER_ADDRESS.toLowerCase();
   const ownerPadded = ethers.utils.hexZeroPad(ownerLower, 32);
 
-  // Event signatures
+  // Event signatures (unchanged)
   const increaseSig = ethers.utils.keccak256(ethers.utils.toUtf8Bytes('IncreaseLiquidity(uint256,uint128,uint256,uint256)'));
   const decreaseSig = ethers.utils.keccak256(ethers.utils.toUtf8Bytes('DecreaseLiquidity(uint256,uint128,uint256,uint256)'));
   const collectSig = ethers.utils.keccak256(ethers.utils.toUtf8Bytes('Collect(uint256,address,uint256,uint256)'));
@@ -434,122 +433,121 @@ export async function fetchPositionEvents(tokenId, startBlock, dec0, dec1, sym0,
 
   const events = [];
 
-  const batches = [];
-  for (let endBlockChunk = currentBlock; endBlockChunk >= startBlock; endBlockChunk -= chunkSize) {
-    const startBlockChunk = Math.max(startBlock, endBlockChunk - chunkSize + 1);
-    batches.push(async () => {
-      // PositionManager events
-      const mgrFilter = {
-        address: CONTRACTS.POSITION_MANAGER,
-        topics: [[increaseSig, decreaseSig, collectSig], tokenIdPadded],
-        fromBlock: '0x' + startBlockChunk.toString(16),
-        toBlock: '0x' + endBlockChunk.toString(16)
-      };
-      let mgrLogs = [];
-      try {
-        mgrLogs = await provider.getLogs(mgrFilter);
-        console.log(`Fetched ${mgrLogs.length} PositionManager logs for blocks ${startBlockChunk} to ${endBlockChunk}`);
-      } catch (err) {
-        console.error(`Error fetching PositionManager logs for blocks ${startBlockChunk} to ${endBlockChunk}:`, err);
-      }
-
-      for (const log of mgrLogs) {
-        const parsed = ifaceMgr.parseLog(log);
-        console.log('Parsed mgr log name: ', parsed.name);
-        const timestamp = (await provider.getBlock(log.blockNumber)).timestamp;
-        const date = new Date(timestamp * 1000).toLocaleString();
-        let type, amount0, amount1;
-        if (parsed.name === 'IncreaseLiquidity') {
-          type = 'Deposit';
-          amount0 = ethers.utils.formatUnits(parsed.args.amount0, dec0);
-          amount1 = ethers.utils.formatUnits(parsed.args.amount1, dec1);
-        } else if (parsed.name === 'DecreaseLiquidity') {
-          type = 'Withdrawal';
-          amount0 = ethers.utils.formatUnits(parsed.args.amount0, dec0);
-          amount1 = ethers.utils.formatUnits(parsed.args.amount1, dec1);
-        } else if (parsed.name === 'Collect') {
-          type = 'Fee Claim (Tokens)';
-          amount0 = ethers.utils.formatUnits(parsed.args.amount0, dec0);
-          amount1 = ethers.utils.formatUnits(parsed.args.amount1, dec1);
-          console.log('Adding Fee Claim (Tokens): ', amount0, amount1, date);
+  // Helper to fetch Etherscan V2 API pages (multichain with chainid=8453 for Base)
+  async function fetchApi(module, action, params) {
+    let page = 1;
+    let allResults = [];
+    while (true) {
+      const url = `https://api.etherscan.io/v2/api?chainid=8453&module=${module}&action=${action}&address=${OWNER_ADDRESS}&startblock=${startBlock}&endblock=latest&sort=asc&page=${page}&offset=1000&apikey=${BASESCAN_API_KEY}${params ? params : ''}`;
+      const response = await fetch(url);
+      const data = await response.json();
+      if (data.status !== '1' || !data.result) {
+        if (data.message === 'No transactions found') {
+          console.log(`No new transactions found for ${action}`);  // Info log for empty results
+        } else {
+          console.error(`Etherscan V2 API error for ${action}:`, data.message || data.result || data);  // Real error
         }
-        const event = { date, type, details: `${amount0} ${sym0} / ${amount1} ${sym1}`, block: log.blockNumber };
-        events.push(event);
+        break;
       }
-
-      // MasterChef events (Deposit/Withdraw)
-      const mcFilter = {
-        address: CONTRACTS.MASTERCHEF,
-        topics: [[depositSig, withdrawSig], ownerPadded, tokenIdPadded],
-        fromBlock: '0x' + startBlockChunk.toString(16),
-        toBlock: '0x' + endBlockChunk.toString(16)
-      };
-      let mcLogs = [];
-      try {
-        mcLogs = await provider.getLogs(mcFilter);
-        console.log(`Fetched ${mcLogs.length} MasterChef logs for blocks ${startBlockChunk} to ${endBlockChunk}`);
-      } catch (err) {
-        console.error(`Error fetching MasterChef logs for blocks ${startBlockChunk} to ${endBlockChunk}:`, err);
-      }
-      for (const log of mcLogs) {
-        try {
-          const parsed = ifaceMC.parseLog(log);
-          const timestamp = (await provider.getBlock(log.blockNumber)).timestamp;
-          const date = new Date(timestamp * 1000).toLocaleString();
-          let type, details;
-          if (parsed.name === 'Deposit') {
-            type = 'Deposit (Staked)';
-            details = parsed.args.liquidity.toString();
-          } else if (parsed.name === 'Withdraw') {
-            type = 'Withdrawal (Unstaked)';
-            details = parsed.args.liquidity.toString();
-          }
-          const event = { date, type, details, block: log.blockNumber };
-          events.push(event);
-        } catch (parseErr) {
-          console.error(`Error parsing MasterChef log:`, parseErr);
-        }
-      }
-
-      // CAKE Transfer events (from MasterChef to owner)
-      const cakeFilter = {
-        address: CAKE_ADDRESS,
-        topics: [TRANSFER_EVENT_SIG, ethers.utils.hexZeroPad(CONTRACTS.MASTERCHEF, 32), ownerPadded],
-        fromBlock: '0x' + startBlockChunk.toString(16),
-        toBlock: '0x' + endBlockChunk.toString(16)
-      };
-      let cakeLogs = [];
-      try {
-        cakeLogs = await provider.getLogs(cakeFilter);
-        console.log(`Fetched ${cakeLogs.length} CAKE Transfer logs for blocks ${startBlockChunk} to ${endBlockChunk}`);
-      } catch (err) {
-        console.error(`Error fetching CAKE Transfer logs for blocks ${startBlockChunk} to ${endBlockChunk}:`, err);
-      }
-
-      for (const log of cakeLogs) {
-        const parsed = ifaceERC20.parseLog(log);
-        const timestamp = (await provider.getBlock(log.blockNumber)).timestamp;
-        const date = new Date(timestamp * 1000).toLocaleString();
-        const amount = ethers.utils.formatEther(parsed.args.value);
-        const event = { date, type: 'Fee Claim (CAKE)', details: amount, block: log.blockNumber };
-        events.push(event);
-      }
-    });
+      allResults = allResults.concat(data.result);
+      if (data.result.length < 1000) break;  // No more pages
+      page++;
+      await new Promise(r => setTimeout(r, 200));  // Delay for API rate (5/sec free)
+    }
+    return allResults;
   }
 
-  // Process batches in smaller groups to avoid rate limits
-  const batchSize = 10;  // Adjust down if rate limits hit (e.g., to 10)
-  for (let i = 0; i < batches.length; i += batchSize) {
-    await Promise.all(batches.slice(i, i + batchSize).map(b => b()));
+  // Fetch normal txs (for PositionManager and MasterChef interactions)
+  const txs = await fetchApi('account', 'txlist', '');
+
+  // Fetch CAKE token transfers (tokentx with contractaddress)
+  const cakeTxs = await fetchApi('account', 'tokentx', `&contractaddress=${CAKE_ADDRESS}`);
+
+  // Combine and unique tx hashes (dedup if overlaps)
+  const uniqueTxHashes = [...new Set([...txs.map(tx => tx.hash), ...cakeTxs.map(tx => tx.hash)])];
+
+  // Fetch receipts and parse logs (batched with delays for RPC limits)
+  const receiptBatchSize = 10;  // Adjust if rate limits hit
+  for (let i = 0; i < uniqueTxHashes.length; i += receiptBatchSize) {
+    const batchHashes = uniqueTxHashes.slice(i, i + receiptBatchSize);
+    const receipts = await Promise.all(batchHashes.map(async hash => {
+      try {
+        return await provider.getTransactionReceipt(hash);
+      } catch (err) {
+        console.error(`Error fetching receipt for tx ${hash}:`, err);
+        return null;
+      }
+    }));
+
+    for (const receipt of receipts) {
+      if (!receipt || !receipt.logs) continue;
+
+      for (const log of receipt.logs) {
+        // Parse based on address and topics (like your original code)
+        if (log.address.toLowerCase() === CONTRACTS.POSITION_MANAGER.toLowerCase()) {
+          try {
+            const parsed = ifaceMgr.parseLog(log);
+            if (parsed.args.tokenId.eq(tokenIdBN)) {  // Only for this position
+              const timestamp = (await provider.getBlock(receipt.blockNumber)).timestamp;
+              const date = new Date(timestamp * 1000).toLocaleString();
+              let type, details;
+              if (parsed.name === 'IncreaseLiquidity') {
+                type = 'Deposit';
+                const amount0 = ethers.utils.formatUnits(parsed.args.amount0, dec0);
+                const amount1 = ethers.utils.formatUnits(parsed.args.amount1, dec1);
+                details = `${amount0} ${sym0} / ${amount1} ${sym1}`;
+                events.push({ date, type, details, block: receipt.blockNumber });
+              } else if (parsed.name === 'DecreaseLiquidity') {
+                type = 'Withdrawal';
+                const amount0 = ethers.utils.formatUnits(parsed.args.amount0, dec0);
+                const amount1 = ethers.utils.formatUnits(parsed.args.amount1, dec1);
+                details = `${amount0} ${sym0} / ${amount1} ${sym1}`;
+                events.push({ date, type, details, block: receipt.blockNumber });
+              } else if (parsed.name === 'Collect') {
+                type = 'Fee Claim (Tokens)';
+                const amount0 = ethers.utils.formatUnits(parsed.args.amount0, dec0);
+                const amount1 = ethers.utils.formatUnits(parsed.args.amount1, dec1);
+                details = `${amount0} ${sym0} / ${amount1} ${sym1}`;
+                events.push({ date, type, details, block: receipt.blockNumber });
+              }
+              // No push outside—skips if name doesn't match (e.g., 'Transfer')
+            }
+          } catch { }
+        } else if (log.address.toLowerCase() === CONTRACTS.MASTERCHEF.toLowerCase()) {
+          try {
+            const parsed = ifaceMC.parseLog(log);
+            if (parsed.args.tokenId.eq(tokenIdBN)) {
+              const timestamp = (await provider.getBlock(receipt.blockNumber)).timestamp;
+              const date = new Date(timestamp * 1000).toLocaleString();
+              let type, details;
+              if (parsed.name === 'Deposit') {
+                type = 'Deposit (Staked)';
+                details = parsed.args.liquidity.toString();
+              } else if (parsed.name === 'Withdraw') {
+                type = 'Withdrawal (Unstaked)';
+                details = parsed.args.liquidity.toString();
+              }
+              events.push({ date, type, details, block: receipt.blockNumber });
+            }
+          } catch { }
+        } else if (log.address.toLowerCase() === CAKE_ADDRESS.toLowerCase()) {
+          try {
+            const parsed = ifaceERC20.parseLog(log);
+            if (parsed.args.from.toLowerCase() === CONTRACTS.MASTERCHEF.toLowerCase() && parsed.args.to.toLowerCase() === ownerLower) {
+              const timestamp = (await provider.getBlock(receipt.blockNumber)).timestamp;
+              const date = new Date(timestamp * 1000).toLocaleString();
+              const amount = ethers.utils.formatEther(parsed.args.value);
+              events.push({ date, type: 'Fee Claim (CAKE)', details: amount, block: receipt.blockNumber });
+            }
+          } catch { }
+        }
+      }
+    }
     await new Promise(r => setTimeout(r, 200));  // Delay between batches
   }
 
-  console.log('Events before sort: ', events);
-
-  // Sort events by date
+  // Sort events by date (unchanged)
   events.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-  console.log('Events after sort: ', events);
 
   return { newEvents: events, endBlock: currentBlock };
 }

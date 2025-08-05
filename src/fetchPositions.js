@@ -11,10 +11,31 @@ const NFTManagerABI = require('@pancakeswap/v3-periphery/artifacts/contracts/Non
 const FactoryABI = require('@pancakeswap/v3-core/artifacts/contracts/PancakeV3Factory.sol/PancakeV3Factory.json');
 
 const MasterChefABI = [
-  'function userPositionInfos(uint256) view returns (uint128 liquidity, uint128 boostLiquidity, int24 tickLower, int24 tickUpper, uint256 rewardGrowthInside, uint256 reward, address user, uint32 pid, uint256 boostMultiplier)',
-  'function pendingCake(uint256 _tokenId) view returns (uint256)',
-  'event Deposit(address indexed user, uint256 indexed tokenId, uint128 liquidity, int24 tickLower, int24 tickUpper)',
-  'event Withdraw(address indexed user, uint256 indexed tokenId, uint128 liquidity, int24 tickLower, int24 tickUpper)'
+  "function userPositionInfos(uint256) view returns (uint128 liquidity, uint128 boostLiquidity, int24 tickLower, int24 tickUpper, uint256 rewardGrowthInside, uint256 reward, address user, uint32 pid, uint256 boostMultiplier)",
+  "function pendingCake(uint256 _tokenId) view returns (uint256)",
+  {
+    "name": "collect",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "params",
+        "type": "tuple",
+        "components": [
+          { "name": "tokenId", "type": "uint256" },
+          { "name": "recipient", "type": "address" },
+          { "name": "amount0Max", "type": "uint128" },
+          { "name": "amount1Max", "type": "uint128" }
+        ]
+      }
+    ],
+    "outputs": [
+      { "name": "amount0", "type": "uint256" },
+      { "name": "amount1", "type": "uint256" }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  "event Deposit(address indexed user, uint256 indexed tokenId, uint128 liquidity, int24 tickLower, int24 tickUpper)",
+  "event Withdraw(address indexed user, uint256 indexed tokenId, uint128 liquidity, int24 tickLower, int24 tickUpper)"
 ];
 
 const ERC20_ABI = [

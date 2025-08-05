@@ -1,7 +1,7 @@
 import { ethers, BigNumber } from 'ethers';
 import Decimal from 'decimal.js';
 import sqlite3 from 'sqlite3';
-import { fetchAllTokenIds, fetchPosition, getPoolAddress, fetchPoolState, computeAmounts, isStaked, fetchFarmingRewards, getTokenSymbol, getTokenDecimals, tickToPrice, fetchPositionEvents, posMgr, masterchef }
+import { fetchAllTokenIds, fetchPosition, getPoolAddress, fetchPoolState, computeAmounts, isStaked, getTokenSymbol, getTokenDecimals, tickToPrice, fetchPositionEvents, posMgr, masterchef }
   from './fetchPositions.js';
 import { OWNER_ADDRESS } from './config.js';
 
@@ -120,21 +120,34 @@ async function main() {
     pos.owed0 = raw[10];
     pos.owed1 = raw[11];
     let liquidity = raw[7];
-    let earned = BigNumber.from(0);
+
     if (staked) {
       const info = await masterchef.userPositionInfos(id);
       liquidity = info[0];
-      earned = await fetchFarmingRewards(id);
     }
-    const posLive = { ...pos, liquidity, earned };
-    const { amount0, amount1, fees0, fees1 } = await computeAmounts(posLive, poolState);
+
+    const posLive = { ...pos, liquidity };
+    const { amount0, amount1, fees0: unstakedFees0, fees1: unstakedFees1 } = await computeAmounts(posLive, poolState);
+
+    let fees0 = unstakedFees0;
+    let fees1 = unstakedFees1;
+    let cakeEarned = "0";
+
+    const MaxUint128 = ethers.BigNumber.from(2).pow(128).sub(1);
+    if (staked) {
+      const collectParams = { tokenId: id, recipient: OWNER_ADDRESS, amount0Max: MaxUint128, amount1Max: MaxUint128 };
+      const { amount0: fee0BN, amount1: fee1BN } = await posMgr.callStatic.collect(collectParams, { from: masterchef.address });
+      fees0 = ethers.utils.formatUnits(fee0BN, dec0);
+      fees1 = ethers.utils.formatUnits(fee1BN, dec1);
+      const cakeEarnedBN = await masterchef.pendingCake(id);
+      cakeEarned = ethers.utils.formatEther(cakeEarnedBN);
+    }
 
     console.log(` • ${sym0} amount: ${amount0}`);
     console.log(` • ${sym1} amount: ${amount1}`);
     console.log(` • Uncollected fees: ${fees0} ${sym0} / ${fees1} ${sym1}`);
 
     if (staked) {
-      const cakeEarned = ethers.utils.formatEther(earned);
       console.log(` • CAKE earned: ${cakeEarned}`);
     }
 

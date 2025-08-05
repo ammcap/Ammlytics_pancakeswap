@@ -159,7 +159,8 @@ async function main() {
     const initialPoolState = await fetchPoolState(poolAddr, pos.tickLower, pos.tickUpper, pos.mintBlock);
     const initialTick = initialPoolState.slot0.tick;
     const initialPrice = tickToPrice(initialTick, dec0, dec1);  // Price of token1 in token0
-    console.log(`Initial price: ${initialPrice.toSignificantDigits(6)} ${sym1} per ${sym0}`);
+    const initialPriceInv = new Decimal(1).div(initialPrice);
+    console.log(`Initial price: ${initialPriceInv.toSignificantDigits(6)} ${sym0} per ${sym1}`);
 
     let initialUsd = pos.initialUsd;
     if (isNew) {

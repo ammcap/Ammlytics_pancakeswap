@@ -1,7 +1,7 @@
 import { ethers, BigNumber } from 'ethers';
 import Decimal from 'decimal.js';
 import sqlite3 from 'sqlite3';
-import { fetchAllTokenIds, fetchPosition, getPoolAddress, fetchPoolState, computeAmounts, isStaked, getTokenSymbol, getTokenDecimals, tickToPrice, fetchPositionEvents, posMgr, masterchef }
+import { fetchAllTokenIds, fetchPosition, getPoolAddress, fetchPoolState, computeAmounts, isStaked, getTokenSymbol, getTokenDecimals, tickToPrice, fetchPositionEvents, posMgr, masterchef, fetchCakePrice }
   from './fetchPositions.js';
 import { OWNER_ADDRESS } from './config.js';
 
@@ -108,7 +108,6 @@ async function main() {
     const priceLowerInv = new Decimal(1).div(priceUpper);
     const priceUpperInv = new Decimal(1).div(priceLower);
 
-    console.log(`Range: Tick ${pos.tickLower} to ${pos.tickUpper}`);
     console.log(`Price: Min ${priceLowerInv.toSignificantDigits(6)} / Max ${priceUpperInv.toSignificantDigits(6)} ${sym0} per ${sym1}`);
     console.log(`Staked in farm: ${staked ? 'Yes' : 'No'}`);
     const poolAddr = await getPoolAddress(pos.token0, pos.token1, pos.feeTier);
@@ -201,12 +200,38 @@ async function main() {
         console.log(` - ${event.date}: ${event.type} - ${event.details}`);
       }
       let totalCake = new Decimal(0);
+      let totalFees0 = new Decimal(0);
+      let totalFees1 = new Decimal(0);
       events.forEach(e => {
+        if (e.type === 'Fee Claim (Tokens)') {
+          const parts = e.details.split(' / ');
+          const amount0 = new Decimal(parts[0].split(' ')[0]);
+          const amount1 = new Decimal(parts[1].split(' ')[0]);
+          totalFees0 = totalFees0.add(amount0);
+          totalFees1 = totalFees1.add(amount1);
+        }
         if (e.type === 'Fee Claim (CAKE)') {
           totalCake = totalCake.add(new Decimal(e.details));
         }
       });
-      console.log(`Total CAKE earned (claimed): ${totalCake.toFixed(6)}`);
+      console.log(`Unclaimed swap fees: ${totalFees0.toFixed(6)} ${sym0} / ${totalFees1.toFixed(6)} ${sym1}`);
+      console.log(`CAKE earned (claimed): ${totalCake.toFixed(6)}`);
+      const cakePrice = await fetchCakePrice();
+      console.log(`CAKE price: ${cakePrice.toFixed(4)}`);
+
+      // APR Calculation
+      const currentUsdValue = new Decimal(amount0).add(new Decimal(amount1).mul(initialPriceInv));
+      const unclaimedFeesUsd = new Decimal(fees0).add(new Decimal(fees1).mul(initialPriceInv));
+      const unclaimedCakeUsd = new Decimal(cakeEarned).mul(cakePrice);
+      const claimedFeesUsd = totalFees0.add(totalFees1.mul(initialPriceInv));
+      const claimedCakeUsd = totalCake.mul(cakePrice);
+
+      const totalReturn = currentUsdValue.add(unclaimedFeesUsd).add(unclaimedCakeUsd).add(claimedFeesUsd).add(claimedCakeUsd).sub(initialUsd);
+      const timeElapsed = (new Date().getTime() / 1000) - pos.timestamp;
+      const daysElapsed = timeElapsed / (60 * 60 * 24);
+      const apr = totalReturn.div(initialUsd).div(daysElapsed).mul(365).mul(100);
+
+      console.log(`Estimated APR: ${apr.toFixed(2)}%`);
     } else {
       console.log('No events found.');
     }

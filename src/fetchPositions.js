@@ -573,4 +573,17 @@ export async function fetchPositionEvents(tokenId, startBlock, dec0, dec1, sym0,
   return { newEvents: events, endBlock: currentBlock };
 }
 
+export async function fetchCakePrice() {
+  const CAKE_USDC_POOL = '0xBf1713B92F4212F0fAC0078e2cea7E182D40078B';
+  const pool = new ethers.Contract(CAKE_USDC_POOL, IUniswapV3PoolABI, provider);
+  const slot0 = await pool.slot0();
+  const token0 = await pool.token0();
+  const token1 = await pool.token1();
+  const dec0 = await getTokenDecimals(token0);
+  const dec1 = await getTokenDecimals(token1);
+  const price = tickToPrice(slot0.tick, dec0, dec1);
+  const cakeIsToken0 = token0.toLowerCase() === CAKE_ADDRESS.toLowerCase();
+  return cakeIsToken0 ? price : new Decimal(1).div(price);
+}
+
 export { posMgr, masterchef };

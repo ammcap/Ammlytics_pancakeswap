@@ -72,6 +72,27 @@ async function updateLastQueried(tokenId, block) {
   });
 }
 
+function formatTime(seconds) {
+  const weeks = Math.floor(seconds / (3600 * 24 * 7));
+  seconds %= 3600 * 24 * 7;
+  const days = Math.floor(seconds / (3600 * 24));
+  seconds %= 3600 * 24;
+  const hours = Math.floor(seconds / 3600);
+  seconds %= 3600;
+  const minutes = Math.floor(seconds / 60);
+  seconds = Math.floor(seconds % 60);
+
+  if (weeks > 0) {
+    return `${weeks}w/${days}d/${hours}h`;
+  } else if (days > 0) {
+    return `${days}d/${hours}h/${minutes}m`;
+  } else if (hours > 0) {
+    return `${hours}h/${minutes}m/${seconds}s`;
+  } else {
+    return `${minutes}m/${seconds}s`;
+  }
+}
+
 async function main() {
   console.log(`Fetching positions for ${OWNER_ADDRESS}…`);
   const ids = await fetchAllTokenIds(OWNER_ADDRESS);
@@ -82,7 +103,8 @@ async function main() {
   }
 
   for (const id of ids) {
-    console.log(`\n⦿ Position #${id}`);
+    console.log(`
+⦿ Position #${id}`);
     let pos = await getPositionFromDB(id);
     let isNew = !pos;
     if (isNew) {
@@ -226,12 +248,24 @@ async function main() {
       const claimedFeesUsd = totalFees0.add(totalFees1.mul(initialPriceInv));
       const claimedCakeUsd = totalCake.mul(cakePrice);
 
-      const totalReturn = currentUsdValue.add(unclaimedFeesUsd).add(unclaimedCakeUsd).add(claimedFeesUsd).add(claimedCakeUsd).sub(initialUsd);
+      const totalRewardsUsd = unclaimedFeesUsd.add(unclaimedCakeUsd).add(claimedFeesUsd).add(claimedCakeUsd);
       const timeElapsed = (new Date().getTime() / 1000) - pos.timestamp;
-      const daysElapsed = timeElapsed / (60 * 60 * 24);
-      const apr = totalReturn.div(initialUsd).div(daysElapsed).mul(365).mul(100);
+      const hoursElapsed = timeElapsed / 3600;
+      const rewardsPerHour = totalRewardsUsd.div(hoursElapsed);
+      const annualRewards = rewardsPerHour.mul(24 * 365);
+      const apr = annualRewards.div(initialUsd).mul(100);
 
       console.log(`Estimated APR: ${apr.toFixed(2)}%`);
+
+      // Calculation details
+      const formattedTime = formatTime(timeElapsed);
+      const currentPositionValue = currentUsdValue;
+
+      console.log(`
+--- Calculation Details ---`);
+      console.log(`- Total Rewards Accrued (USD): $${totalRewardsUsd.toFixed(4)}`);
+      console.log(`- Time Elapsed: ${formattedTime}`);
+      console.log(`- Current Position Value (USD): ${currentPositionValue.toFixed(2)}`);
     } else {
       console.log('No events found.');
     }

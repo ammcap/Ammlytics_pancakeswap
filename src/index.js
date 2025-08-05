@@ -5,7 +5,10 @@ import { fetchAllTokenIds, fetchPosition, getPoolAddress, fetchPoolState, comput
   from './fetchPositions.js';
 import { OWNER_ADDRESS } from './config.js';
 
+Decimal.set({ precision: 50 });  // Set high precision for decimal.js to avoid rounding issues in calcs
+
 const db = new sqlite3.Database('./ammlytics.db');
+let D = Decimal;
 
 db.serialize(() => {
   db.run("CREATE TABLE IF NOT EXISTS positions (tokenId TEXT PRIMARY KEY, createdTimestamp INTEGER, initialAmount0 TEXT, initialAmount1 TEXT, initialUsd TEXT, tickLower INTEGER, tickUpper INTEGER, token0 TEXT, token1 TEXT, feeTier INTEGER, mintBlock INTEGER)");
@@ -266,6 +269,95 @@ async function main() {
       console.log(`- Total Rewards Accrued (USD): $${totalRewardsUsd.toFixed(4)}`);
       console.log(`- Time Elapsed: ${formattedTime}`);
       console.log(`- Current Position Value (USD): ${currentPositionValue.toFixed(2)}`);
+
+      console.log(`--- Impermanent Loss and Breakeven Analysis ---`);
+
+      // Define prices in "doc" terms (USDC per cbBTC, large numbers)
+      const priceLowerDoc = priceLowerInv;  // Printed Min (e.g., 109461)
+      const priceUpperDoc = priceUpperInv;  // Printed Max (e.g., 116229)
+      const priceInitialDoc = initialPriceInv;
+
+      // Compute current price from pool state (cbBTC / USDC, small)
+      const currentPriceCode = tickToPrice(poolState.slot0.tick, dec0, dec1);
+      const priceCurrentDoc = new D(1).div(currentPriceCode);
+
+      // Define amounts (A = cbBTC/volatile, B = USDC/stable)
+      const amountAInitial = new D(initialAmount1Human);  // cbBTC initial
+      const amountBInitial = new D(initialAmount0Human);  // USDC initial
+      const amountACurrent = new D(amount1);  // cbBTC current
+      const amountBCurrent = new D(amount0);  // USDC current
+
+      // Step 1: Compute L
+      const sa = D.sqrt(priceLowerDoc);
+      const sb = D.sqrt(priceUpperDoc);
+      const s0 = D.sqrt(priceInitialDoc);
+
+      const oneOverS0 = new D(1).div(s0);
+      const oneOverSb = new D(1).div(sb);
+      const lFromA = amountAInitial.div(oneOverS0.sub(oneOverSb));
+
+      const lFromB = amountBInitial.div(s0.sub(sa));
+
+      const l = lFromA.add(lFromB).div(2);
+
+      // Check discrepancy
+      const discrepancyPercent = lFromA.sub(lFromB).abs().div(lFromA.add(lFromB).div(2)).mul(100);
+      if (discrepancyPercent.gt(0.1)) {
+        console.warn(`Liquidity calculation discrepancy: ${discrepancyPercent.toFixed(2)}% (possible rounding issue)`);
+      }
+
+      // Optional: Validate if position is in-range
+      const inRange = pos.tickLower <= poolState.slot0.tick && poolState.slot0.tick < pos.tickUpper;
+      if (!inRange) {
+        console.warn('Position is currently out-of-range (earnings stopped; IL still calculated)');
+      }
+
+      // Step 3: Current IL
+      const lpValue = amountBCurrent.add(amountACurrent.mul(priceCurrentDoc));
+      const holdValue = amountBInitial.add(amountAInitial.mul(priceCurrentDoc));
+      const ilDollar = lpValue.sub(holdValue);
+      const ilPercent = ilDollar.div(holdValue).mul(100);
+
+      // Step 4: IL at High End (price = price_upper_doc, all USDC)
+      const sUpper = sb;
+      const amountAAtUpper = new D(0);
+      const amountBAtUpper = l.mul(sUpper.sub(sa));
+      const lpValueUpper = amountBAtUpper;  // + 0 * price_upper_doc
+      const holdValueUpper = amountBInitial.add(amountAInitial.mul(priceUpperDoc));
+      const ilDollarUpper = lpValueUpper.sub(holdValueUpper);
+      const ilPercentUpper = ilDollarUpper.div(holdValueUpper).mul(100);
+
+      // Step 5: IL at Low End (price = price_lower_doc, all cbBTC)
+      const sLower = sa;
+      const amountBAtLower = new D(0);
+      const amountAAtLower = l.mul( new D(1).div(sLower).sub( new D(1).div(sb) ) );
+      const lpValueLower = amountAAtLower.mul(priceLowerDoc);  // + 0
+      const holdValueLower = amountBInitial.add(amountAInitial.mul(priceLowerDoc));
+      const ilDollarLower = lpValueLower.sub(holdValueLower);
+      const ilPercentLower = ilDollarLower.div(holdValueLower).mul(100);
+
+      // Output IL results
+      console.log(`Current Price: ${priceCurrentDoc.toSignificantDigits(6)} ${sym0} per ${sym1}`);
+      console.log(`Current IL: ${ilPercent.toFixed(3)}% ($${ilDollar.toFixed(2)})`);
+      console.log(`IL at High End (${priceUpperDoc.toFixed(0)} ${sym0} per ${sym1}): ${ilPercentUpper.toFixed(3)}% ($${ilDollarUpper.toFixed(2)})`);
+      console.log(`IL at Low End (${priceLowerDoc.toFixed(0)} ${sym0} per ${sym1}): ${ilPercentLower.toFixed(3)}% ($${ilDollarLower.toFixed(2)})`);
+
+      // Step 6: Breakeven Time (using accrued rewards for precision)
+      let rewardsPerSecond = new D(0);
+      if (timeElapsed > 0) {
+        rewardsPerSecond = new D(totalRewardsUsd).div(timeElapsed);  // total_rewards_accrued_usd / time_elapsed_seconds
+      }
+      if (rewardsPerSecond.lte(0)) {
+        console.log('Breakeven: Insufficient rewards data (position too new or no rewards accrued)');
+      } else {
+        const timeSecondsUpper = ilDollarUpper.abs().div(rewardsPerSecond);
+        const timeSecondsLower = ilDollarLower.abs().div(rewardsPerSecond);
+
+        console.log(`Breakeven Time for High End IL: ${formatTime(timeSecondsUpper.toNumber())}`);
+        console.log(`Breakeven Time for Low End IL: ${formatTime(timeSecondsLower.toNumber())}`);
+      }
+
+
     } else {
       console.log('No events found.');
     }

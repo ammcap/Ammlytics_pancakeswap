@@ -1,166 +1,121 @@
-################################################################################
-#
-#  Impermanent Loss Calculation for Concentrated Liquidity Positions
-#  Reference for Orca DEX (Solana) - SOL/USDC Pair
-#
-################################################################################
+Impermanent Loss and Breakeven Analysis for PancakeSwap V3 Concentrated Liquidity Positions
+This document provides a comprehensive guide to implementing impermanent loss (IL) calculations and breakeven time analysis for PancakeSwap V3 positions, based on Uniswap V3 mechanics (as PancakeSwap V3 is a fork of Uniswap V3). The calculations are tailored to the data from your app's output, such as initial and current token amounts, price ranges, initial price, USD values, APR, and rewards. All formulas assume:
 
+Token0 = cbBTC (volatile token, denoted as A).
+Token1 = USDC (stable token, denoted as B, assumed $1 USD per USDC).
+Price P = token1 / token0 = USDC per cbBTC (large number, e.g., 112828).
+Position is staked in a farm, earning CAKE rewards and swap fees.
+Research confirms: PancakeSwap V3 follows Uniswap V3 for concentrated liquidity and IL. Out-of-range positions do not earn CAKE rewards or swap fees (only in-range liquidity earns). Thus, breakeven assumes the position stays in-range to earn at the current APR.
 
-##
-## 1. CORE CONCEPTS
-##
+Key Variables from App Output
+Extract these from your app's position data:
 
-# Impermanent Loss (IL): The temporary loss of funds that a liquidity provider (LP) experiences due to price changes in a token pair. It's the difference in value between simply holding the tokens (HODL) and providing liquidity to an automated market maker (AMM).
+price_lower: Lower price bound (Pa, e.g., 109461 USDC per cbBTC).
+price_upper: Upper price bound (Pb, e.g., 116229 USDC per cbBTC).
+price_initial: Initial price at deposit (P0, e.g., 112828 USDC per cbBTC).
+amount_a_initial: Initial amount of token0 (cbBTC, e.g., 0.00116125).
+amount_b_initial: Initial amount of token1 (USDC, e.g., 134.245342).
+initial_usd_value: Initial position value in USD (e.g., 265.27).
+amount_a_current: Current amount of token0 (cbBTC, e.g., 0.0009676).
+amount_b_current: Current amount of token1 (USDC, e.g., 156.148).
+current_usd_value: Current position value in USD (e.g., 265.32, excluding uncollected fees).
+apr: Estimated APR (e.g., 125.86%, including fees + CAKE rewards).
+time_elapsed_seconds: Time position has been open in seconds (e.g., parse "2h/48m/0s" to 10080 seconds).
+total_rewards_accrued_usd: Total rewards accrued in USD (e.g., 0.1067, including CAKE + fees).
 
-# Concentrated Liquidity: An advancement over the traditional `x*y=k` AMM model, used by Orca's Whirlpools. It allows LPs to provide liquidity within a specific price range, rather than across the entire price spectrum (from 0 to infinity). This concentrates the LP's capital, leading to higher fee earnings but also exposing them to greater impermanent loss if the price moves outside their chosen range.
+Note: Your app should fetch the current pool price (price_current) directly from the PancakeSwap V3 pool contract (via sqrtPriceX96, converted to P = (sqrtPriceX96 / 2^96)^2, adjusted for token order). If not available, compute it from current amounts using the quadratic formula below. Uncollected fees are excluded from IL calculations (IL focuses on principal divergence).
+Step 1: Compute Liquidity (L) from Initial Data
+L is the position's liquidity parameter. Compute using initial amounts and price.
+Formulas (using sqrt prices for precision):
 
-# Key Variables:
-#   - SOL: The volatile asset in the pair.
-#   - USDC: The stablecoin in the pair, assumed to be pegged to $1.
-#   - x: The amount of SOL in the position.
-#   - y: The amount of USDC in the position.
-#   - P: The current price of SOL in terms of USDC.
-#   - Pc: The initial price of SOL when the position was created.
-#   - Pa: The lower bound of the selected price range.
-#   - Pb: The upper bound of the selected price range.
-#   - L: The measure of liquidity, which is constant for a given position within its active range.
+sa = sqrt(price_lower)
+sb = sqrt(price_upper)
+s0 = sqrt(price_initial)
+L_from_a = amount_a_initial / (1/s0 - 1/sb)
+L_from_b = amount_b_initial / (s0 - sa)
+L = (L_from_a + L_from_b) / 2 (average if slight discrepancy due to rounding; ideally they match).
 
+Implementation Tip: If discrepancy > 0.1%, log error (possible data rounding). Use math.sqrt in JS/Node.
+Step 2: Compute Current Price (if not fetched from pool)
+If price_current isn't directly available, solve quadratic from current amounts:
 
-##
-## 2. CALCULATING IMPERMANENT LOSS: A STEP-BY-STEP GUIDE
-##
+a_coef = amount_a_current
+b_coef = (amount_b_current / sb) - (amount_a_current * sa)
+c_coef = -amount_b_current
+Discriminant d = b_coef^2 - 4 * a_coef * c_coef
+s = [-b_coef + sqrt(d)] / (2 * a_coef) (positive root between sa and sb)
+price_current = s^2
 
-# This guide outlines how to calculate the impermanent loss at the upper (Pb) and lower (Pa) bounds of your price range.
+Validation: Ensure sa <= s <= sb (position in-range). Example from data: ~113391.
+Step 3: Compute Current Impermanent Loss
+IL = (Position value - Hold value) at current price, excluding fees/rewards.
 
-#
-# Step 1: Define Your Initial Position
-#
+Position value (lp_value) = amount_a_current * price_current + amount_b_current (your app already computes this as current_usd_value).
+Hold value (hold_value) = amount_a_initial * price_current + amount_b_initial
+il_dollar = lp_value - hold_value
+il_percent = (il_dollar / hold_value) * 100
 
-# You need the following inputs from the user:
-#   - The amount of SOL to deposit (`x_initial`).
-#   - The amount of USDC to deposit (`y_initial`).
-#   - The initial price of SOL (`Pc`).
-#   - The lower price bound (`Pa`).
-#   - The upper price bound (`Pb`).
+Notes:
 
-#
-# Step 2: Calculate the Liquidity (L) of the Position
-#
+IL is typically negative (loss).
+If using computed price_current, validate against current_usd_value (e.g., recompute lp_value and compare; discrepancies may be due to rounding).
 
-# The liquidity `L` is a crucial constant for your position. It's calculated based on the initial deposit amounts and the chosen price range.
+Step 4: Compute IL at High End (Price = price_upper)
+At upper bound, position converts to all token1 (USDC).
 
-# You need two formulas, one for the amount of SOL (`x`) and one for the amount of USDC (`y`):
-#   - `x = L * (1 / sqrt(P) - 1 / sqrt(Pb))`
-#   - `y = L * (sqrt(P) - sqrt(Pa))`
+s_upper = sb (from Step 1)
+If price >= price_upper: amount_a_at_upper = 0
+amount_b_at_upper = L * (s_upper - sa)
+lp_value_upper = amount_a_at_upper * price_upper + amount_b_at_upper
+hold_value_upper = amount_a_initial * price_upper + amount_b_initial
+il_dollar_upper = lp_value_upper - hold_value_upper
+il_percent_upper = (il_dollar_upper / hold_value_upper) * 100
 
-# Since you know the initial amounts (`x_initial`, `y_initial`) and the initial price (`Pc`), you can solve for `L`:
-#   - `L_from_x = x_initial / (1 / sqrt(Pc) - 1 / sqrt(Pb))`
-#   - `L_from_y = y_initial / (sqrt(Pc) - sqrt(Pa))`
+Edge Case: At exact upper bound, position is at edge of range; assume IL as above.
+Step 5: Compute IL at Low End (Price = price_lower)
+At lower bound, position converts to all token0 (cbBTC).
 
-# Note: In a properly balanced initial deposit, these two `L` values should be nearly identical. You can use either formula to find `L`.
+s_lower = sa (from Step 1)
+If price <= price_lower: amount_b_at_lower = 0
+amount_a_at_lower = L * (1/s_lower - 1/sb)
+lp_value_lower = amount_a_at_lower * price_lower + amount_b_at_lower
+hold_value_lower = amount_a_initial * price_lower + amount_b_initial
+il_dollar_lower = lp_value_lower - hold_value_lower
+il_percent_lower = (il_dollar_lower / hold_value_lower) * 100
 
-#
-# Step 3: Calculate the Value of the Position at the Price Boundaries
-#
+Step 6: Compute Breakeven Time to Offset IL
+Breakeven time = time to earn back |IL| via rewards at current APR, assuming position stays in-range (out-of-range earns nothing).
 
-# When the price `P` moves outside the range `[Pa, Pb]`, the position becomes composed of only one asset.
+Use initial_usd_value as base for APR (consistent with how APR is estimated).
+Yearly rewards = (apr / 100) * initial_usd_value
+Rewards per second = yearly_rewards / (365.25 * 24 * 3600)  // Use 365.25 for leap years
+For high end: time_seconds_upper = Math.abs(il_dollar_upper) / rewards_per_second
+For low end: time_seconds_lower = Math.abs(il_dollar_lower) / rewards_per_second
 
-#   - If `P >= Pb` (Price hits the upper bound): The position will be entirely in USDC.
-#     - The amount of SOL (`x`) becomes 0.
-#     - The amount of USDC (`y`) can be calculated using the formula for `y` with `P = Pb`:
-#       - `y_at_Pb = L * (sqrt(Pb) - sqrt(Pa))`
-#     - The total value of the position at `Pb` is simply `y_at_Pb`.
+Format Time: Convert seconds to "Xw/Xd/Xh/Xm/Xs" (weeks/days/hours/minutes/seconds).
 
-#   - If `P <= Pa` (Price hits the lower bound): The position will be entirely in SOL.
-#     - The amount of USDC (`y`) becomes 0.
-#     - The amount of SOL (`x`) can be calculated using the formula for `x` with `P = Pa`:
-#       - `x_at_Pa = L * (1 / sqrt(Pa) - 1 / sqrt(Pb))`
-#     - The total value of the position at `Pa` is `x_at_Pa * Pa`.
+weeks = Math.floor(seconds / (7 * 24 * 3600))
+days = Math.floor((seconds % (7*86400)) / 86400)
+hours = Math.floor((seconds % 86400) / 3600)
+minutes = Math.floor((seconds % 3600) / 60)
+secs = seconds % 60
+String: ${weeks}w/${days}d/${hours}h/${minutes}m/${secs}s (omit zero units if desired).
 
-#
-# Step 4: Calculate the HODL Value
-#
+Alternative Rate Calculation (more precise if using accrued data):
 
-# The HODL value is what your initial assets would be worth if you had simply held them in your wallet.
+rewards_per_second = total_rewards_accrued_usd / time_elapsed_seconds
+Then use this instead (matches APR extrapolation).
 
-#   - HODL Value at `Pb`: `(x_initial * Pb) + y_initial`
-#   - HODL Value at `Pa`: `(x_initial * Pa) + y_initial`
+Notes:
 
-#
-# Step 5: Calculate the Impermanent Loss
-#
+APR includes fees + CAKE; assumes constant rate while in-range.
+If position goes out-of-range, breakeven doesn't apply (no earnings).
+For boundaries, breakeven assumes earnings at rate before hitting boundary.
 
-# Impermanent loss is the difference between the HODL value and the value of your LP position.
+Implementation Tips in Node.js
 
-#   - Impermanent Loss at `Pb`: `HODL_Value_at_Pb - Position_Value_at_Pb`
-#   - Impermanent Loss at `Pa`: `HODL_Value_at_Pa - Position_Value_at_Pa`
-
-# You can also express IL as a percentage:
-#   - `IL_% = (Impermanent_Loss / HODL_Value) * 100`
-
-##
-## 3. EXAMPLE SCENARIO: SOL/USDC
-##
-
-# Let's walk through an example.
-
-#
-# Initial Conditions:
-#
-# - Initial SOL Price (Pc): $170
-# - Lower Bound (Pa): $160
-# - Upper Bound (Pb): $180
-#
-# - You decide to provide liquidity with an initial value of approximately $1,000.
-# - At `Pc = $170`, the required initial amounts for this range are calculated as:
-#   - `x_initial` (SOL): ~2.774 SOL
-#   - `y_initial` (USDC): ~$500 USDC
-#   - Total Initial Value: `(2.774 * 170) + 500 = $471.58 + $500 = ~$971.58`
-
-#
-# Calculation Steps:
-#
-# 1. Calculate Liquidity (L):
-#    - Using the `y_initial` amount:
-#      `L = 500 / (sqrt(170) - sqrt(160)) = 500 / (13.038 - 12.649) = ~1284.3`
-
-# 2. Calculate Position Value at Upper Bound (Pb = $180):
-#    - Your position is now all USDC.
-#    - `y_at_Pb = 1284.3 * (sqrt(180) - sqrt(160)) = 1284.3 * (13.416 - 12.649) = ~$985.3`
-#    - `Position_Value_at_Pb = $985.3`
-
-# 3. Calculate HODL Value at Upper Bound:
-#    - `HODL_Value_at_Pb = (2.774 * 180) + 500 = $499.32 + $500 = $999.32`
-
-# 4. Calculate Impermanent Loss at Upper Bound:
-#    - `IL_at_Pb = $999.32 - $985.3 = $14.02`
-#    - `IL_%_at_Pb = (14.02 / 999.32) * 100 = ~1.40%`
-
-# ---
-
-# 5. Calculate Position Value at Lower Bound (Pa = $160):
-#    - Your position is now all SOL.
-#    - `x_at_Pa = 1284.3 * (1 / sqrt(160) - 1 / sqrt(180)) = 1284.3 * (0.07906 - 0.07454) = ~5.805 SOL`
-#    - `Position_Value_at_Pa = 5.805 * 160 = $928.8`
-
-# 6. Calculate HODL Value at Lower Bound:
-#    - `HODL_Value_at_Pa = (2.774 * 160) + 500 = $443.84 + $500 = $943.84`
-
-# 7. Calculate Impermanent Loss at Lower Bound:
-#    - `IL_at_Pa = $943.84 - $928.8 = $15.04`
-#    - `IL_%_at_Pa = (15.04 / 943.84) * 100 = ~1.59%`
-
-
-##
-## 4. THE ROLE OF TRADING FEES
-##
-
-# The calculations above do not include the trading fees you earn as an LP. These fees are your compensation for taking on the risk of impermanent loss.
-
-# - Fees are collected from swaps that occur within your active price range `[Pa, Pb]`.
-# - The total return of your position is: `(Final_Position_Value + Accrued_Fees) - Initial_Position_Value`.
-# - A successful LP position is one where `Accrued_Fees > Impermanent_Loss`.
-
-# To track profitability, your application should also fetch and display the unclaimed fees for the user's position. The net change in value of the position, including fees, is often referred to as "Price Impact + Fees".
-
-# This comprehensive data will allow your users to accurately assess the performance of their concentrated liquidity positions on the Orca DEX.
+Use BigNumber from bignumber.js or ethers.js for precision (avoid float errors with sqrts/large numbers).
+Fetch current price via Web3/ethers from pool contract: sqrtPriceX96 = await poolContract.slot0() then price = (BigInt(sqrtPriceX96) ** 2n / (1n << 192n)).toNumber() (adjust for decimals/token order; cbBTC likely 8 decimals, USDC 6).
+Error Handling: If position out-of-range, IL calculations still apply, but warn user earnings stop.
+Testing: Use example data to verify (e.g., current IL ~ -0.029%, high IL ~ -0.76%, low IL ~ -1.18%; times depend on APR).
+Research Sources: Formulas derived from Uniswap V3 whitepaper, Medium articles on V3 IL, arXiv paper (2111.09192), and PancakeSwap docs (v3 farms only reward in-range).

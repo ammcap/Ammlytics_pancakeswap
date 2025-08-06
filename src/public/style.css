@@ -1,0 +1,444 @@
+/* Google Fonts - Roboto Mono */
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap');
+
+:root {
+    --color-accent: #76a0c5; /* Slate Blue */
+    --color-positive: #60C85B; /* Vibrant Green */
+    --color-negative: #D9534F; /* Soft Red */
+    --color-warning: #F0AD4E; /* Amber */
+    --color-text-primary: #EAE6E1; /* Warm Off-White */
+    --color-text-secondary: #A9A39A; /* Lighter Gray */
+    --color-bg-primary: #2B2A29;   /* Warm Dark Gray */
+    --color-bg-secondary: #3C3A38; /* Warm Mid Gray */
+    --color-bg-tertiary: #4C4A48;  /* Warm Light Gray */
+    --font-family-monospace: 'Roboto Mono', monospace;
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.wallet-container {
+    display: flex;
+    flex-direction: column;
+}
+
+body {
+    font-family: var(--font-family-monospace);
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    margin: 0;
+    padding: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+}
+
+.container {
+    background-color: transparent;
+    width: 100%;
+    max-width: 1200px;
+    box-sizing: border-box;
+}
+
+h1 {
+    color: var(--color-accent);
+    text-align: left;
+    margin-bottom: 0;
+    font-size: 2.5em;
+    font-weight: 700;
+}
+
+#loading-message, .error-message {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 1.1em;
+    color: var(--color-text-secondary);
+}
+
+.error-message {
+    color: var(--color-negative);
+}
+
+#portfolio-summary {
+    background-color: var(--color-bg-secondary);
+    padding: 16px 24px;
+    border-radius: 8px;
+    margin-bottom: 32px;
+    text-align: center;
+    font-size: 1.3em;
+    font-weight: bold;
+    border-left: 5px solid var(--color-accent);
+    border-right: 5px solid var(--color-accent);
+}
+
+.position-card {
+    background-color: var(--color-bg-secondary);
+    border: 1px solid var(--color-bg-tertiary);
+    border-radius: 8px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+/* --- Card Header --- */
+.card-header {
+    background-color: var(--color-bg-tertiary);
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--color-accent);
+    gap: 20px;
+}
+
+.header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.header-center {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.header-right {
+    flex-shrink: 0;
+}
+
+.card-header h2 {
+    color: var(--color-text-primary);
+    margin: 0;
+    font-size: 1.5em;
+}
+
+.position-value {
+    font-size: 1.4em;
+    font-weight: 700;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.status {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.9em;
+    font-weight: bold;
+    color: #fff;
+    text-align: center;
+    width: fit-content;
+}
+
+.status-in-range { background-color: var(--color-positive); }
+.status-out-of-range { background-color: var(--color-warning); }
+
+/* --- Card Body --- */
+.card-body {
+    padding: 24px;
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1fr;
+    gap: 24px;
+}
+
+.card-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.section-title {
+    color: var(--color-accent);
+    font-size: 1.3em;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--color-bg-tertiary);
+}
+
+.metric {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.metric-label { color: var(--color-text-secondary); font-size: 0.95em; }
+.metric-value { color: var(--color-text-primary); font-weight: bold; font-size: 1.1em; }
+.metric-value-container { display: flex; flex-direction: column; align-items: flex-end; }
+.metric-value-details { color: var(--color-text-primary); font-weight: normal; font-size: 1.1em; }
+.reward-sub-line { color: var(--color-text-secondary); font-size: 0.9em; display: block; text-align: right; }
+
+/* --- Price Range Visualizer Styles --- */
+.price-range-visual {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.range-bar {
+    width: 200px;
+    height: 6px;
+    background-color: var(--color-bg-tertiary);
+    border: 1px solid var(--color-text-secondary);
+    border-radius: 3px;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.range-indicator {
+    position: absolute;
+    height: 18px; /* Height of the indicator tick */
+    width: 6px; /* Width of the indicator tick */
+    background-color: var(--color-accent);
+    border-radius: 3px;
+    border: 1px solid var(--color-text-primary);
+    /* Position based on JS variable */
+    left: var(--position);
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+}
+
+.current-price-label {
+    position: absolute;
+    color: var(--color-text-primary);
+    font-size: 0.8em;
+    font-weight: bold;
+    background-color: var(--color-bg-primary);
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+    /* Position below the indicator on desktop */
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 8px;
+}
+
+.current-price-label::before {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 5px solid var(--color-bg-primary);
+    /* Position caret above the label */
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.range-endpoint {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.range-label {
+    font-size: 1em;
+    font-weight: bold;
+    color: var(--color-text-primary);
+}
+
+.range-percent {
+    font-size: 0.8em;
+    color: var(--color-text-secondary);
+}
+
+.mobile-only { display: none; }
+
+/* --- Wallet Input/Display Section --- */
+.wallet-section {
+    padding: 0;
+    margin-bottom: 0;
+    text-align: right;
+}
+
+.wallet-section p {
+    margin-bottom: 15px;
+    font-size: 1.1em;
+    color: var(--color-text-primary);
+}
+
+#wallet-display-section {
+    text-align: right;
+    margin-bottom: 15px;
+    font-size: 0.9em;
+    color: var(--color-text-secondary);
+}
+
+#wallet-display-section p {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.wallet-section input[type="text"] {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid var(--color-bg-tertiary);
+    border-radius: 5px;
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    font-family: var(--font-family-monospace);
+    font-size: 1em;
+}
+
+.wallet-section button {
+    background-color: var(--color-accent);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    font-family: var(--font-family-monospace);
+    transition: background-color 0.2s ease;
+}
+
+.wallet-section button:hover {
+    background-color: #5a8bbd;
+}
+
+.remove-wallet-x {
+    background: none;
+    border: none;
+    color: var(--color-accent);
+    font-size: 1.2em;
+    font-weight: bold;
+    cursor: pointer;
+    margin-left: 10px;
+    padding: 0;
+    transition: color 0.2s ease;
+}
+
+.remove-wallet-x:hover {
+    color: var(--color-negative);
+}
+
+
+/* --- IL/Breakeven & Semantic Colors --- */
+.il-analysis p { margin: 4px 0; font-size: 0.95em; }
+.il-analysis .label { color: var(--color-text-secondary); }
+.il-analysis .value { font-weight: bold; }
+.value-positive { color: var(--color-positive); }
+.value-negative { color: var(--color-negative); }
+.value-warning { color: var(--color-warning); }
+.breakeven-red { color: #FF6B6B; }
+.breakeven-orange { color: #FFA07A; }
+.breakeven-yellow { color: #FFD700; }
+.breakeven-green { color: #90EE90; }
+
+/* --- ================================== --- */
+/* ---      MOBILE RESPONSIVENESS       --- */
+/* --- ================================== --- */
+@media (max-width: 768px) {
+    body { padding: 16px; }
+    .container { max-width: 100%; }
+    h1 { font-size: 2em; margin-bottom: 24px; }
+    #portfolio-summary { padding: 12px 16px; font-size: 1.1em; margin-bottom: 24px; }
+    .card-header h2 { font-size: 1.3em; }
+    .position-value { font-size: 1.2em; }
+    .status { font-size: 0.8em; padding: 3px 8px; }
+    .section-title { font-size: 1.1em; }
+    .metric-label, .metric-value, .metric-value-details { font-size: 0.9em; }
+    .reward-sub-line { font-size: 0.8em; }
+    .il-analysis p { font-size: 0.85em; }
+    
+    /* --- NEW GRID LAYOUT FOR MOBILE HEADER --- */
+    .card-header {
+        display: grid;
+        grid-template-columns: 1fr auto; /* Left column flexible, right column for the gauge */
+        grid-template-rows: auto 1fr;
+        grid-template-areas:
+            "top-left right-col"
+            "bottom-left right-col";
+        gap: 0 24px; /* No row gap, 24px column gap */
+        padding: 16px;
+    }
+
+    .header-left {
+        grid-area: top-left;
+        align-items: flex-start; /* Align content to the left */
+        gap: 4px;
+    }
+
+    .header-right { /* Est. Value */
+        grid-area: bottom-left;
+        align-self: end; /* Push to the bottom of its grid cell */
+    }
+
+    .header-right .position-value {
+        text-align: left; /* Override desktop style for mobile */
+    }
+
+    .header-center { /* Price Range */
+        grid-area: right-col;
+        align-self: stretch;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .card-body {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    /* --- Vertical Price Gauge Styles --- */
+    .desktop-only { display: none; }
+    .mobile-only { display: flex; }
+
+    .price-range-visual {
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        height: 100%;
+        justify-content: center;
+    }
+
+    .range-bar {
+        width: 6px;
+        height: 150px;
+        order: 2; /* Bar in the middle */
+    }
+
+    .range-endpoint.upper-bound { order: 1; } /* Upper label on top */
+    .range-endpoint.lower-bound { order: 3; } /* Lower label on bottom */
+
+    .range-indicator {
+        bottom: var(--position);
+        top: auto;
+        left: 50%;
+        transform: translate(-50%, 50%);
+    }
+
+    .current-price-label {
+        top: 50%;
+        left: auto;
+        right: 100%;
+        transform: translateY(-50%);
+        margin-top: 0;
+        margin-right: 8px;
+    }
+
+    .current-price-label::before {
+        border-top: 5px solid transparent;
+        border-bottom: 5px solid transparent;
+        border-left: 5px solid var(--color-bg-primary);
+        border-right: 0;
+        top: 50%;
+        left: 100%;
+        transform: translateY(-50%);
+    }
+}

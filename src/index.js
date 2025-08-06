@@ -4,9 +4,13 @@ import sqlite3 from 'sqlite3';
 import { fetchAllTokenIds, fetchPosition, getPoolAddress, fetchPoolState, computeAmounts, isStaked, getTokenSymbol, getTokenDecimals, tickToPrice, fetchPositionEvents, posMgr, masterchef, fetchCakePrice }
   from './fetchPositions.js';
 import { OWNER_ADDRESS } from './config.js';
+import express from 'express';
+import path from 'path';
 
 Decimal.set({ precision: 50 });  // Set high precision for decimal.js to avoid rounding issues in calcs
-
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const db = new sqlite3.Database('./ammlytics.db');
 let D = Decimal;
 
@@ -96,16 +100,22 @@ function formatTime(seconds) {
   }
 }
 
-async function main() {
-  console.log(`Fetching positions for ${OWNER_ADDRESS}…`);
-  const ids = await fetchAllTokenIds(OWNER_ADDRESS);
+async function fetchPositionData(walletAddress) {
+  console.log(`Fetching positions for ${walletAddress}…`);
+  const ids = await fetchAllTokenIds(walletAddress);
 
   if (!ids.length) {
-    console.log('No v3 positions found for your address.');
-    return;
+    return { message: 'No v3 positions found for your address.' };
   }
 
+  const positions = [];
+  let totalPortfolioValue = new D(0);
+  let totalDailyEarnings = 0;
+  let totalAnnualEarnings = 0;
+  let totalYield = 0;
+
   for (const id of ids) {
+    let posData = { token_id: id };
     console.log(`
 ⦿ Position #${id}`);
     let pos = await getPositionFromDB(id);
@@ -120,11 +130,13 @@ async function main() {
     }
     const sym0 = await getTokenSymbol(pos.token0);
     const sym1 = await getTokenSymbol(pos.token1);
+    posData.pair = `${sym0}/${sym1}`;
     const feePercent = (pos.feeTier / 10000).toFixed(2) + '%';
     const staked = await isStaked(id);
     const creationDate = new Date(pos.timestamp * 1000).toLocaleString();
     console.log(`Created: ${creationDate}`);
-    console.log(`Pair: ${sym0}/${sym1} (Fee: ${feePercent})`);
+    console.log(`Pair: ${posData.pair} (Fee: ${feePercent})`);
+    posData.initial_state = { date: creationDate };
     const dec0 = await getTokenDecimals(pos.token0);
     const dec1 = await getTokenDecimals(pos.token1);
 
@@ -132,8 +144,9 @@ async function main() {
     const priceUpper = tickToPrice(pos.tickUpper, dec0, dec1);
     const priceLowerInv = new Decimal(1).div(priceUpper);
     const priceUpperInv = new Decimal(1).div(priceLower);
-
-    console.log(`Price: Min ${priceLowerInv.toSignificantDigits(6)} / Max ${priceUpperInv.toSignificantDigits(6)} ${sym0} per ${sym1}`);
+    posData.price_range_lower = priceLowerInv.toSignificantDigits(6);
+    posData.price_range_upper = priceUpperInv.toSignificantDigits(6);
+    console.log(`Price: Min ${posData.price_range_lower} / Max ${posData.price_range_upper} ${sym0} per ${sym1}`);
     console.log(`Staked in farm: ${staked ? 'Yes' : 'No'}`);
     const poolAddr = await getPoolAddress(pos.token0, pos.token1, pos.feeTier);
     console.log(`Pool: ${poolAddr}`);
@@ -159,7 +172,7 @@ async function main() {
 
     const MaxUint128 = ethers.BigNumber.from(2).pow(128).sub(1);
     if (staked) {
-      const collectParams = { tokenId: id, recipient: OWNER_ADDRESS, amount0Max: MaxUint128, amount1Max: MaxUint128 };
+      const collectParams = { tokenId: id, recipient: walletAddress, amount0Max: MaxUint128, amount1Max: MaxUint128 };
       const { amount0: fee0BN, amount1: fee1BN } = await posMgr.callStatic.collect(collectParams, { from: masterchef.address });
       fees0 = ethers.utils.formatUnits(fee0BN, dec0);
       fees1 = ethers.utils.formatUnits(fee1BN, dec1);
@@ -174,17 +187,21 @@ async function main() {
     if (staked) {
       console.log(` • CAKE earned: ${cakeEarned}`);
     }
+    posData.rewards = [{ symbol: 'CAKE', amount: cakeEarned }];
+    posData.current_balances = `${amount0} ${sym0} & ${amount1} ${sym1}`;
 
     const initialAmount0Human = ethers.utils.formatUnits(pos.initialAmount0, dec0);
     const initialAmount1Human = ethers.utils.formatUnits(pos.initialAmount1, dec1);
     console.log(`Initial ${sym0} amount: ${initialAmount0Human}`);
     console.log(`Initial ${sym1} amount: ${initialAmount1Human}`);
+    posData.initial_state.balances = `${initialAmount0Human} ${sym0} & ${initialAmount1Human} ${sym1}`;
 
     const initialPoolState = await fetchPoolState(poolAddr, pos.tickLower, pos.tickUpper, pos.mintBlock);
     const initialTick = initialPoolState.slot0.tick;
     const initialPrice = tickToPrice(initialTick, dec0, dec1);  // Price of token1 in token0
     const initialPriceInv = new Decimal(1).div(initialPrice);
     console.log(`Initial price: ${initialPriceInv.toSignificantDigits(6)} ${sym0} per ${sym1}`);
+    posData.initial_state.price = `${initialPriceInv.toSignificantDigits(6)} ${sym0} per ${sym1}`;
 
     let initialUsd = pos.initialUsd;
     if (isNew) {
@@ -205,7 +222,7 @@ async function main() {
     }
 
     console.log(`Initial USD value: $${initialUsd.toFixed(2)}`);
-
+    posData.initial_state.usd_value = `$${initialUsd.toFixed(2)}`;
 
     let events = await getEventsFromDB(id);
     const lastQueried = await getLastQueriedFromDB(id);
@@ -259,6 +276,7 @@ async function main() {
       const apr = annualRewards.div(initialUsd).mul(100);
 
       console.log(`Estimated APR: ${apr.toFixed(2)}%`);
+      posData.annualized_apr = `${apr.toFixed(2)}%`;
 
       // Calculation details
       const formattedTime = formatTime(timeElapsed);
@@ -269,6 +287,8 @@ async function main() {
       console.log(`- Total Rewards Accrued (USD): $${totalRewardsUsd.toFixed(4)}`);
       console.log(`- Time Elapsed: ${formattedTime}`);
       console.log(`- Current Position Value (USD): ${currentPositionValue.toFixed(2)}`);
+      posData.estimated_value_usd = `$${currentPositionValue.toFixed(2)}`;
+      posData.total_rewards_usd = totalRewardsUsd.toFixed(2);
 
       console.log(`--- Impermanent Loss and Breakeven Analysis ---`);
 
@@ -280,6 +300,7 @@ async function main() {
       // Compute current price from pool state (cbBTC / USDC, small)
       const currentPriceCode = tickToPrice(poolState.slot0.tick, dec0, dec1);
       const priceCurrentDoc = new D(1).div(currentPriceCode);
+      posData.current_price = `${priceCurrentDoc.toSignificantDigits(6)} ${sym0} per ${sym1}`;
 
       // Define amounts (A = cbBTC/volatile, B = USDC/stable)
       const amountAInitial = new D(initialAmount1Human);  // cbBTC initial
@@ -308,6 +329,7 @@ async function main() {
 
       // Optional: Validate if position is in-range
       const inRange = pos.tickLower <= poolState.slot0.tick && poolState.slot0.tick < pos.tickUpper;
+      posData.status = inRange ? 'IN RANGE' : 'OUT OF RANGE';
       if (!inRange) {
         console.warn('Position is currently out-of-range (earnings stopped; IL still calculated)');
       }
@@ -330,7 +352,7 @@ async function main() {
       // Step 5: IL at Low End (price = price_lower_doc, all cbBTC)
       const sLower = sa;
       const amountBAtLower = new D(0);
-      const amountAAtLower = l.mul( new D(1).div(sLower).sub( new D(1).div(sb) ) );
+      const amountAAtLower = l.mul(new D(1).div(sLower).sub(new D(1).div(sb)));
       const lpValueLower = amountAAtLower.mul(priceLowerDoc);  // + 0
       const holdValueLower = amountBInitial.add(amountAInitial.mul(priceLowerDoc));
       const ilDollarLower = lpValueLower.sub(holdValueLower);
@@ -347,6 +369,33 @@ async function main() {
       if (timeElapsed > 0) {
         rewardsPerSecond = new D(totalRewardsUsd).div(timeElapsed);  // total_rewards_accrued_usd / time_elapsed_seconds
       }
+
+      // Base structure without breakeven (will add if available)
+      posData.impermanent_loss_data = {
+        position_age: formattedTime,
+        current: {
+          il_usd: `$${ilDollar.toFixed(2)}`,
+          il_perc: `${ilPercent.toFixed(3)}%`,
+          net_gain_loss: totalRewardsUsd.add(ilDollar).toFixed(2)
+        },
+        upper_bound: {
+          price: priceUpperDoc.toFixed(0),
+          il_usd: `$${ilDollarUpper.toFixed(2)}`,
+          il_perc: `${ilPercentUpper.toFixed(3)}%`,
+          breakeven_time: "N/A",  // Default
+          breakeven_time_perc: 0,  // Default for coloring
+          fees_vs_il: "N/A"  // Default
+        },
+        lower_bound: {
+          price: priceLowerDoc.toFixed(0),
+          il_usd: `$${ilDollarLower.toFixed(2)}`,
+          il_perc: `${ilPercentLower.toFixed(3)}%`,
+          breakeven_time: "N/A",  // Default
+          breakeven_time_perc: 0,  // Default for coloring
+          fees_vs_il: "N/A"  // Default
+        }
+      };
+
       if (rewardsPerSecond.lte(0)) {
         console.log('Breakeven: Insufficient rewards data (position too new or no rewards accrued)');
       } else {
@@ -355,16 +404,73 @@ async function main() {
 
         console.log(`Breakeven Time for High End IL: ${formatTime(timeSecondsUpper.toNumber())}`);
         console.log(`Breakeven Time for Low End IL: ${formatTime(timeSecondsLower.toNumber())}`);
+
+        // Now add breakeven fields since data is available
+        posData.impermanent_loss_data.upper_bound.breakeven_time = formatTime(timeSecondsUpper.toNumber());
+        posData.impermanent_loss_data.upper_bound.breakeven_time_perc = timeSecondsUpper.div(new D(365 * 24 * 3600)).mul(100).toNumber();
+        posData.impermanent_loss_data.upper_bound.fees_vs_il = `${totalRewardsUsd.div(ilDollarUpper.abs()).toFixed(2)}x`;
+
+        posData.impermanent_loss_data.lower_bound.breakeven_time = formatTime(timeSecondsLower.toNumber());
+        posData.impermanent_loss_data.lower_bound.breakeven_time_perc = timeSecondsLower.div(new D(365 * 24 * 3600)).mul(100).toNumber();
+        posData.impermanent_loss_data.lower_bound.fees_vs_il = `${totalRewardsUsd.div(ilDollarLower.abs()).toFixed(2)}x`;
       }
 
+      // Other UI fields
+      posData.daily_projected_usd_earnings = (rewardsPerHour * 24).toFixed(2);
+      posData.annual_projected_usd_earnings = annualRewards.toFixed(2);
+      posData.total_rewards_usd = totalRewardsUsd.toFixed(2);
+
+      // Price range percentage for slider (linear in price for visual accuracy)
+      const rangeWidthPrice = priceUpperDoc.sub(priceLowerDoc);
+      posData.price_range_percentage = priceCurrentDoc.sub(priceLowerDoc).div(rangeWidthPrice).mul(100).toNumber();
+
+      // Percent to lower/upper as price change percentages
+      posData.perc_to_lower = `${priceCurrentDoc.sub(priceLowerDoc).div(priceCurrentDoc).mul(100).toFixed(2)}% below`;
+      posData.perc_to_upper = `${priceUpperDoc.sub(priceCurrentDoc).div(priceCurrentDoc).mul(100).toFixed(2)}% above`;
+
+      // Aggregate for portfolio summary
+      totalPortfolioValue = totalPortfolioValue.add(currentUsdValue);
+      totalDailyEarnings += parseFloat(posData.daily_projected_usd_earnings);
+      totalAnnualEarnings += parseFloat(posData.annual_projected_usd_earnings);
+      totalYield += parseFloat(apr);
 
     } else {
       console.log('No events found.');
+      posData.impermanent_loss_data = {};
     }
+
+    positions.push(posData);
   }
+
+  return {
+    total_portfolio_value: `$${totalPortfolioValue.toFixed(2)}`,
+    num_active_positions: positions.length,
+    total_daily_projected_usd_earnings: totalDailyEarnings.toFixed(2),
+    total_annual_projected_usd_earnings: totalAnnualEarnings.toFixed(2),
+    total_annual_yield: `${(totalYield / positions.length).toFixed(2)}%`,
+    positions
+  };
 }
 
-main().catch(err => {
-  console.error('Error:', err);
-  process.exit(1);
+const app = express();
+const port = 3000;
+
+// Serve static files from src/public
+app.use(express.static(path.join(__dirname, 'public')));
+
+// API endpoint for data
+app.get('/api/data', async (req, res) => {
+  const walletAddress = req.query.wallet_address || OWNER_ADDRESS;
+  try {
+    const data = await fetchPositionData(walletAddress);
+    res.json(data);
+  } catch (err) {
+    console.error('Error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Start server
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
 });

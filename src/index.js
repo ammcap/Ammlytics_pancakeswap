@@ -90,13 +90,13 @@ function formatTime(seconds) {
   seconds = Math.floor(seconds % 60);
 
   if (weeks > 0) {
-    return `${weeks}w/${days}d/${hours}h`;
+    return `${weeks}w ${days}d ${hours}h`;
   } else if (days > 0) {
-    return `${days}d/${hours}h/${minutes}m`;
+    return `${days}d ${hours}h ${minutes}m`;
   } else if (hours > 0) {
-    return `${hours}h/${minutes}m/${seconds}s`;
+    return `${hours}h ${minutes}m ${seconds}s`;
   } else {
-    return `${minutes}m/${seconds}s`;
+    return `${minutes}m ${seconds}s`;
   }
 }
 

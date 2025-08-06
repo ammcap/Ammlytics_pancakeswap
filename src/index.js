@@ -408,11 +408,15 @@ async function fetchPositionData(walletAddress) {
         // Now add breakeven fields since data is available
         posData.impermanent_loss_data.upper_bound.breakeven_time = formatTime(timeSecondsUpper.toNumber());
         posData.impermanent_loss_data.upper_bound.breakeven_time_perc = timeSecondsUpper.div(new D(365 * 24 * 3600)).mul(100).toNumber();
-        posData.impermanent_loss_data.upper_bound.fees_vs_il = `${totalRewardsUsd.div(ilDollarUpper.abs()).toFixed(2)}x`;
+        const netUpper = totalRewardsUsd.plus(ilDollarUpper);
+        posData.impermanent_loss_data.upper_bound.fees_vs_il = `$${netUpper.toFixed(2)}`;
+        posData.impermanent_loss_data.upper_bound.fees_vs_il_net = netUpper.toNumber();
 
         posData.impermanent_loss_data.lower_bound.breakeven_time = formatTime(timeSecondsLower.toNumber());
         posData.impermanent_loss_data.lower_bound.breakeven_time_perc = timeSecondsLower.div(new D(365 * 24 * 3600)).mul(100).toNumber();
-        posData.impermanent_loss_data.lower_bound.fees_vs_il = `${totalRewardsUsd.div(ilDollarLower.abs()).toFixed(2)}x`;
+        const netLower = totalRewardsUsd.plus(ilDollarLower);
+        posData.impermanent_loss_data.lower_bound.fees_vs_il = `$${netLower.toFixed(2)}`;
+        posData.impermanent_loss_data.lower_bound.fees_vs_il_net = netLower.toNumber();
       }
 
       // Other UI fields

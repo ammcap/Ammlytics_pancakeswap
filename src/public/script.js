@@ -118,6 +118,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const ilData = position.impermanent_loss_data;
                 const netGainLoss = parseFloat(ilData.current.net_gain_loss.replace(/,/g, ''));
                 const netGainLossClass = netGainLoss >= 0 ? 'value-positive' : 'value-negative';
+                const feesVsIlUpperClass = ilData.upper_bound.fees_vs_il_net >= 0 ? 'value-positive' : 'value-negative';
+                const feesVsIlLowerClass = ilData.lower_bound.fees_vs_il_net >= 0 ? 'value-positive' : 'value-negative';
 
                 ilHtml = `
                     <div class="il-analysis">
@@ -129,12 +131,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         <p style="font-weight: 600; color: var(--color-text-primary); font-size: 1em;">Upper Bound (${ilData.upper_bound.price}):</p>
                         <p style="font-weight: 500; color: var(--color-text-secondary); font-size: 0.9em;">IL: <span class="value value-negative" style="font-weight: 700; font-size: 1.1em;">${ilData.upper_bound.il_usd} (${ilData.upper_bound.il_perc})</span></p>
                         <p style="font-weight: 500; color: var(--color-text-secondary); font-size: 0.9em;">Breakeven: <span class="value ${getBreakevenColorClass(ilData.upper_bound.breakeven_time_perc)}" style="font-weight: 700; font-size: 1.1em;">${ilData.upper_bound.breakeven_time}</span></p>
-                         <p style="font-weight: 500; color: var(--color-text-secondary); font-size: 0.9em;">Fees vs IL: <span class="value" style="font-weight: 700; font-size: 1.1em;">${ilData.upper_bound.fees_vs_il}</span></p>
+                        <p style="font-weight: 500; color: var(--color-text-secondary); font-size: 0.9em;">Fees vs IL: <span class="value ${feesVsIlUpperClass}" style="font-weight: 700; font-size: 1.1em;">${ilData.upper_bound.fees_vs_il}</span></p>
                         <hr style="border-color: var(--color-bg-tertiary); margin: 8px 0;">
                         <p style="font-weight: 600; color: var(--color-text-primary); font-size: 1em;">Lower Bound (${ilData.lower_bound.price}):</p>
                         <p style="font-weight: 500; color: var(--color-text-secondary); font-size: 0.9em;">IL: <span class="value value-negative" style="font-weight: 700; font-size: 1.1em;">${ilData.lower_bound.il_usd} (${ilData.lower_bound.il_perc})</span></p>
                         <p style="font-weight: 500; color: var(--color-text-secondary); font-size: 0.9em;">Breakeven: <span class="value ${getBreakevenColorClass(ilData.lower_bound.breakeven_time_perc)}" style="font-weight: 700; font-size: 1.1em;">${ilData.lower_bound.breakeven_time}</span></p>
-                        <p style="font-weight: 500; color: var(--color-text-secondary); font-size: 0.9em;">Fees vs IL: <span class="value" style="font-weight: 700; font-size: 1.1em;">${ilData.lower_bound.fees_vs_il}</span></p>
+                        <p style="font-weight: 500; color: var(--color-text-secondary); font-size: 0.9em;">Fees vs IL: <span class="value ${feesVsIlLowerClass}" style="font-weight: 700; font-size: 1.1em;">${ilData.lower_bound.fees_vs_il}</span></p>
                     </div>
                 `;
             } else {

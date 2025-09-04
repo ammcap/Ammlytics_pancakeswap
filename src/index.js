@@ -261,8 +261,13 @@ async function fetchPositionData(walletAddress) {
       const cakePrice = await fetchCakePrice();
       console.log(`CAKE price: ${cakePrice.toFixed(4)}`);
 
+      // Compute current price from pool state (cbBTC / USDC, small)
+      const currentPriceCode = tickToPrice(poolState.slot0.tick, dec0, dec1);
+      const priceCurrentDoc = new D(1).div(currentPriceCode);
+      posData.current_price = `${priceCurrentDoc.toSignificantDigits(6)} ${sym0} per ${sym1}`;
+
       // APR Calculation
-      const currentUsdValue = new Decimal(amount0).add(new Decimal(amount1).mul(initialPriceInv));
+      const currentUsdValue = new Decimal(amount0).add(new Decimal(amount1).mul(priceCurrentDoc));
       const unclaimedFeesUsd = new Decimal(fees0).add(new Decimal(fees1).mul(initialPriceInv));
       const unclaimedCakeUsd = new Decimal(cakeEarned).mul(cakePrice);
       const claimedFeesUsd = totalFees0.add(totalFees1.mul(initialPriceInv));
@@ -296,12 +301,7 @@ async function fetchPositionData(walletAddress) {
       const priceLowerDoc = priceLowerInv;  // Printed Min (e.g., 109461)
       const priceUpperDoc = priceUpperInv;  // Printed Max (e.g., 116229)
       const priceInitialDoc = initialPriceInv;
-
-      // Compute current price from pool state (cbBTC / USDC, small)
-      const currentPriceCode = tickToPrice(poolState.slot0.tick, dec0, dec1);
-      const priceCurrentDoc = new D(1).div(currentPriceCode);
-      posData.current_price = `${priceCurrentDoc.toSignificantDigits(6)} ${sym0} per ${sym1}`;
-
+      
       // Define amounts (A = cbBTC/volatile, B = USDC/stable)
       const amountAInitial = new D(initialAmount1Human);  // cbBTC initial
       const amountBInitial = new D(initialAmount0Human);  // USDC initial

@@ -268,9 +268,9 @@ async function fetchPositionData(walletAddress) {
 
       // APR Calculation
       const currentUsdValue = new Decimal(amount0).add(new Decimal(amount1).mul(priceCurrentDoc));
-      const unclaimedFeesUsd = new Decimal(fees0).add(new Decimal(fees1).mul(initialPriceInv));
+      const unclaimedFeesUsd = new Decimal(fees0).add(new Decimal(fees1).mul(priceCurrentDoc*100));
       const unclaimedCakeUsd = new Decimal(cakeEarned).mul(cakePrice);
-      const claimedFeesUsd = totalFees0.add(totalFees1.mul(initialPriceInv));
+      const claimedFeesUsd = totalFees0.add(totalFees1.mul(priceCurrentDoc));
       const claimedCakeUsd = totalCake.mul(cakePrice);
 
       const totalRewardsUsd = unclaimedFeesUsd.add(unclaimedCakeUsd).add(claimedFeesUsd).add(claimedCakeUsd);

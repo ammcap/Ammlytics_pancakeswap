@@ -35,7 +35,8 @@ const MasterChefABI = [
     "stateMutability": "nonpayable"
   },
   "event Deposit(address indexed user, uint256 indexed tokenId, uint128 liquidity, int24 tickLower, int24 tickUpper)",
-  "event Withdraw(address indexed user, uint256 indexed tokenId, uint128 liquidity, int24 tickLower, int24 tickUpper)"
+  "event Withdraw(address indexed user, uint256 indexed tokenId, uint128 liquidity, int24 tickLower, int24 tickUpper)",
+  "event Harvest(address indexed user, uint256 indexed tokenId, uint256 amount)"
 ];
 
 const ERC20_ABI = [
@@ -582,7 +583,7 @@ export async function fetchPositionEvents(tokenId, startBlock, dec0, dec1, sym0,
         if (logAddress === CONTRACTS.MASTERCHEF.toLowerCase()) {
           try {
             const parsed = ifaceMC.parseLog(log);
-            return parsed.name === 'Withdraw' && parsed.args.tokenId.eq(tokenIdBN);
+            return (parsed.name === 'Withdraw' || parsed.name === 'Harvest') && parsed.args.tokenId.eq(tokenIdBN);
           } catch { return false; }
         }
         return false;

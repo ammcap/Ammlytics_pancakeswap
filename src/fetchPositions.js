@@ -223,6 +223,71 @@ const CAKE_ADDRESS = '0x3055913c90fcc1a6ce9a358911721eeb942013a1';  // CAKE on B
 const TRANSFER_EVENT_SIG = ethers.utils.keccak256(ethers.utils.toUtf8Bytes('Transfer(address,address,uint256)'));
 const ZERO_PADDED = ethers.utils.hexZeroPad('0x0000000000000000000000000000000000000000', 32);
 
+export async function getTokenPriceInUsd(tokenAddress) {
+  const tokenAddressLc = tokenAddress.toLowerCase();
+  const usdcAddress = '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913';
+  const usdcAddressLc = usdcAddress.toLowerCase();
+  const wethAddress = '0x4200000000000000000000000000000000000006'; // WETH on Base
+  const cbBtcAddress = '0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf'; // Corrected cbBTC on Base
+
+  if (tokenAddressLc === usdcAddressLc) {
+    return new Decimal(1);
+  }
+
+  let poolAddress = ethers.constants.AddressZero;
+
+  if (tokenAddressLc === wethAddress) {
+    poolAddress = '0x72AB388E2E2F6FaceF59E3C3FA2C4E29011c2D38';
+  } else if (tokenAddressLc === cbBtcAddress) {
+    poolAddress = '0xb94b22332ABf5f89877A14Cc88f2aBC48c34B3Df';
+  } else {
+    const feeTiers = [100, 500, 2500, 10000];
+    for (const fee of feeTiers) {
+      const candidatePool = await factory.getPool(tokenAddress, usdcAddress, fee);
+      if (candidatePool !== ethers.constants.AddressZero) {
+        const poolContract = new ethers.Contract(candidatePool, IUniswapV3PoolABI, provider);
+        try {
+          const liquidity = await poolContract.liquidity();
+          if (liquidity.gt(0)) {
+            poolAddress = candidatePool;
+            break;
+          }
+        } catch (e) {
+          // Ignore error
+        }
+      }
+    }
+  }
+
+  if (poolAddress === ethers.constants.AddressZero) {
+    console.warn(`No direct pool to USDC found for token ${tokenAddress}`);
+    return new Decimal(0);
+  }
+
+  try {
+    const pool = new ethers.Contract(poolAddress, IUniswapV3PoolABI, provider);
+    const [slot0, token0, token1] = await Promise.all([
+        pool.slot0(),
+        pool.token0(),
+        pool.token1()
+    ]);
+
+    const dec0 = await getTokenDecimals(token0);
+    const dec1 = await getTokenDecimals(token1);
+
+    const price = tickToPrice(slot0.tick, dec0, dec1);
+
+    if (token0.toLowerCase() === tokenAddress.toLowerCase()) {
+      return price;
+    } else {
+      return new Decimal(1).div(price);
+    }
+  } catch (error) {
+      console.error(`Error fetching price from pool ${poolAddress} for token ${tokenAddress}:`, error);
+      return new Decimal(0);
+  }
+}
+
 export async function fetchInitialData(tokenId) {
   const tokenIdBN = BigNumber.from(tokenId);
   const tokenIdPadded = ethers.utils.hexZeroPad(tokenIdBN.toHexString(), 32);
@@ -421,7 +486,7 @@ export async function fetchFarmingRewards(tokenId) {
 }
 
 export function tickToPrice(tick, dec0, dec1) {
-  // The price of token1 in terms of token0 is 1.0001^tick
+  // The price of token0 in terms of token1 is 1.0001^tick
   // We need to adjust for the token decimals.
   const price = new Decimal(1.0001).pow(tick);
   const priceAdjusted = price.div(new Decimal(10).pow(dec1 - dec0));
@@ -503,8 +568,28 @@ export async function fetchPositionEvents(tokenId, startBlock, dec0, dec1, sym0,
     for (const receipt of receipts) {
       if (!receipt || !receipt.logs) continue;
 
+      // Scan the receipt to see if it contains an action (Withdraw, Collect, DecreaseLiquidity)
+      // for the specific tokenId we are currently processing. This is the key to correctly
+      // attributing a generic CAKE transfer to a specific position.
+      const isTxForThisTokenId = receipt.logs.some(log => {
+        const logAddress = log.address.toLowerCase();
+        if (logAddress === CONTRACTS.POSITION_MANAGER.toLowerCase()) {
+          try {
+            const parsed = ifaceMgr.parseLog(log);
+            return (parsed.name === 'Collect' || parsed.name === 'DecreaseLiquidity') && parsed.args.tokenId.eq(tokenIdBN);
+          } catch { return false; }
+        }
+        if (logAddress === CONTRACTS.MASTERCHEF.toLowerCase()) {
+          try {
+            const parsed = ifaceMC.parseLog(log);
+            return parsed.name === 'Withdraw' && parsed.args.tokenId.eq(tokenIdBN);
+          } catch { return false; }
+        }
+        return false;
+      });
+
       for (const log of receipt.logs) {
-        // Parse based on address and topics (like your original code)
+        // Parse based on address and topics
         if (log.address.toLowerCase() === CONTRACTS.POSITION_MANAGER.toLowerCase()) {
           try {
             const parsed = ifaceMgr.parseLog(log);
@@ -531,7 +616,6 @@ export async function fetchPositionEvents(tokenId, startBlock, dec0, dec1, sym0,
                 details = `${amount0} ${sym0} / ${amount1} ${sym1}`;
                 events.push({ date, type, details, block: receipt.blockNumber });
               }
-              // No push outside—skips if name doesn't match (e.g., 'Transfer')
             }
           } catch { }
         } else if (log.address.toLowerCase() === CONTRACTS.MASTERCHEF.toLowerCase()) {
@@ -552,15 +636,18 @@ export async function fetchPositionEvents(tokenId, startBlock, dec0, dec1, sym0,
             }
           } catch { }
         } else if (log.address.toLowerCase() === CAKE_ADDRESS.toLowerCase()) {
-          try {
-            const parsed = ifaceERC20.parseLog(log);
-            if (parsed.args.from.toLowerCase() === CONTRACTS.MASTERCHEF.toLowerCase() && parsed.args.to.toLowerCase() === ownerLower) {
-              const timestamp = (await provider.getBlock(receipt.blockNumber)).timestamp;
-              const date = new Date(timestamp * 1000).toLocaleString();
-              const amount = ethers.utils.formatEther(parsed.args.value);
-              events.push({ date, type: 'Fee Claim (CAKE)', details: amount, block: receipt.blockNumber });
-            }
-          } catch { }
+          // Only create a CAKE claim event if we've confirmed this transaction is for the current tokenId.
+          if (isTxForThisTokenId) {
+            try {
+              const parsed = ifaceERC20.parseLog(log);
+              if (parsed.args.from.toLowerCase() === CONTRACTS.MASTERCHEF.toLowerCase() && parsed.args.to.toLowerCase() === ownerLower) {
+                const timestamp = (await provider.getBlock(receipt.blockNumber)).timestamp;
+                const date = new Date(timestamp * 1000).toLocaleString();
+                const amount = ethers.utils.formatEther(parsed.args.value);
+                events.push({ date, type: 'Fee Claim (CAKE)', details: amount, block: receipt.blockNumber });
+              }
+            } catch { }
+          }
         }
       }
     }

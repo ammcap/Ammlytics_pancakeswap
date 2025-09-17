@@ -1,7 +1,7 @@
 import { ethers, BigNumber } from 'ethers';
 import Decimal from 'decimal.js';
 import sqlite3 from 'sqlite3';
-import { fetchAllTokenIds, fetchPosition, getPoolAddress, fetchPoolState, computeAmounts, isStaked, getTokenSymbol, getTokenDecimals, tickToPrice, fetchPositionEvents, posMgr, masterchef, fetchCakePrice }
+import { fetchAllTokenIds, fetchPosition, getPoolAddress, fetchPoolState, computeAmounts, isStaked, getTokenSymbol, getTokenDecimals, tickToPrice, fetchPositionEvents, posMgr, masterchef, fetchCakePrice, getTokenPriceInUsd }
   from './fetchPositions.js';
 import { OWNER_ADDRESS } from './config.js';
 import express from 'express';
@@ -204,24 +204,24 @@ async function fetchPositionData(walletAddress) {
     posData.initial_state.price = `${initialPriceInv.toSignificantDigits(6)} ${sym0} per ${sym1}`;
 
     let initialUsd = pos.initialUsd;
-    if (isNew) {
-      initialUsd = new Decimal(0);
-      const token0Lc = pos.token0.toLowerCase();
-      const token1Lc = pos.token1.toLowerCase();
-      const usdcLc = '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'.toLowerCase();  // USDC on Base
+    if (!initialUsd || initialUsd.isZero()) {
+      const dec0 = await getTokenDecimals(pos.token0);
+      const dec1 = await getTokenDecimals(pos.token1);
+      const initialAmount0Human = ethers.utils.formatUnits(pos.initialAmount0, dec0);
+      const initialAmount1Human = ethers.utils.formatUnits(pos.initialAmount1, dec1);
 
-      if (token0Lc === usdcLc) {
-        initialUsd = new Decimal(initialAmount0Human).add(new Decimal(initialAmount1Human).div(initialPrice));
-      } else if (token1Lc === usdcLc) {
-        const initialPriceInv = new Decimal(1).div(initialPrice);
-        initialUsd = new Decimal(initialAmount1Human).add(new Decimal(initialAmount0Human).mul(initialPriceInv));
-      } else {
-        console.log('Warning: Neither token is USDC; skipping initial USD value.');
-      }
+      const price0 = await getTokenPriceInUsd(pos.token0);
+      const price1 = await getTokenPriceInUsd(pos.token1);
+
+      const usdValue0 = new Decimal(initialAmount0Human).mul(price0);
+      const usdValue1 = new Decimal(initialAmount1Human).mul(price1);
+      initialUsd = usdValue0.add(usdValue1);
+
       await storePosition(id, pos, initialUsd);
+      pos.initialUsd = initialUsd;
     }
 
-    console.log(`Initial USD value: $${initialUsd.toFixed(2)}`);
+    console.log(`Initial USD value: ${initialUsd.toFixed(2)}`);
     posData.initial_state.usd_value = `$${initialUsd.toFixed(2)}`;
 
     let events = await getEventsFromDB(id);
@@ -267,10 +267,12 @@ async function fetchPositionData(walletAddress) {
       posData.current_price = `${priceCurrentDoc.toSignificantDigits(6)} ${sym0} per ${sym1}`;
 
       // APR Calculation
-      const currentUsdValue = new Decimal(amount0).add(new Decimal(amount1).mul(priceCurrentDoc));
-      const unclaimedFeesUsd = new Decimal(fees0).add(new Decimal(fees1).mul(priceCurrentDoc));
+      const price0 = await getTokenPriceInUsd(pos.token0);
+      const price1 = await getTokenPriceInUsd(pos.token1);
+      const currentUsdValue = new Decimal(amount0).mul(price0).add(new Decimal(amount1).mul(price1));
+      const unclaimedFeesUsd = new Decimal(fees0).mul(price0).add(new Decimal(fees1).mul(price1));
       const unclaimedCakeUsd = new Decimal(cakeEarned).mul(cakePrice);
-      const claimedFeesUsd = totalFees0.add(totalFees1.mul(priceCurrentDoc));
+      const claimedFeesUsd = totalFees0.mul(price0).add(totalFees1.mul(price1));
       const claimedCakeUsd = totalCake.mul(cakePrice);
 
       const totalRewardsUsd = unclaimedFeesUsd.add(unclaimedCakeUsd).add(claimedFeesUsd).add(claimedCakeUsd);
@@ -302,7 +304,7 @@ async function fetchPositionData(walletAddress) {
       const priceUpperDoc = priceUpperInv;  // Printed Max (e.g., 116229)
       const priceInitialDoc = initialPriceInv;
       
-      // Define amounts (A = cbBTC/volatile, B = USDC/stable)
+      // Define amounts (A = token1/volatile, B = token0/stable-ish)
       const amountAInitial = new D(initialAmount1Human);  // cbBTC initial
       const amountBInitial = new D(initialAmount0Human);  // USDC initial
       const amountACurrent = new D(amount1);  // cbBTC current
@@ -335,9 +337,8 @@ async function fetchPositionData(walletAddress) {
       }
 
       // Step 3: Current IL
-      const lpValue = amountBCurrent.add(amountACurrent.mul(priceCurrentDoc));
-      const holdValue = amountBInitial.add(amountAInitial.mul(priceCurrentDoc));
-      const ilDollar = lpValue.sub(holdValue);
+      const holdValue = new Decimal(initialAmount0Human).mul(price0).add(new Decimal(initialAmount1Human).mul(price1));
+      const ilDollar = currentUsdValue.sub(holdValue);
       const ilPercent = ilDollar.div(holdValue).mul(100);
 
       // Step 4: IL at High End (price = price_upper_doc, all USDC)

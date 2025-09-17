@@ -35,8 +35,7 @@ const MasterChefABI = [
     "stateMutability": "nonpayable"
   },
   "event Deposit(address indexed user, uint256 indexed tokenId, uint128 liquidity, int24 tickLower, int24 tickUpper)",
-  "event Withdraw(address indexed user, uint256 indexed tokenId, uint128 liquidity, int24 tickLower, int24 tickUpper)",
-  "event Harvest(address indexed user, uint256 indexed tokenId, uint256 amount)"
+  "event Withdraw(address indexed user, uint256 indexed tokenId, uint128 liquidity, int24 tickLower, int24 tickUpper)"
 ];
 
 const ERC20_ABI = [
@@ -581,10 +580,12 @@ export async function fetchPositionEvents(tokenId, startBlock, dec0, dec1, sym0,
           } catch { return false; }
         }
         if (logAddress === CONTRACTS.MASTERCHEF.toLowerCase()) {
-          try {
-            const parsed = ifaceMC.parseLog(log);
-            return (parsed.name === 'Withdraw' || parsed.name === 'Harvest') && parsed.args.tokenId.eq(tokenIdBN);
-          } catch { return false; }
+          // A log from the MasterChef contract is relevant if it has 4 topics (event signature + 3 indexed params)
+          // and the 4th topic matches the padded tokenId of the position we are currently processing.
+          // This is a robust way to identify events related to our NFT position without knowing the exact event ABI.
+          if (log.topics.length === 4 && log.topics[3] === tokenIdPadded) {
+            return true;
+          }
         }
         return false;
       });

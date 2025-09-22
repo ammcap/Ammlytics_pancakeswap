@@ -123,7 +123,16 @@ document.addEventListener('DOMContentLoaded', () => {
                             amountStr = amountStr.slice(0, -1);
                         }
                     }
-                    cakeRewardAmount = `(${amountStr} CAKE)`;
+
+                    let cakeUsdValue = '';
+                    if (position.cakePrice) {
+                        const cakeAmount = parseFloat(amountStr);
+                        if (!isNaN(cakeAmount)) {
+                            const usdValue = cakeAmount * position.cakePrice;
+                            cakeUsdValue = ` ($${usdValue.toFixed(2)})`;
+                        }
+                    }
+                    cakeRewardAmount = `${amountStr} CAKE${cakeUsdValue}`;
                 }
             }
 

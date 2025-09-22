@@ -113,6 +113,7 @@ async function fetchPositionData(walletAddress) {
   let totalDailyEarnings = 0;
   let totalAnnualEarnings = 0;
   let totalYield = 0;
+  const cakePrice = await fetchCakePrice();
 
   for (const id of ids) {
     let posData = { token_id: id };
@@ -444,6 +445,7 @@ async function fetchPositionData(walletAddress) {
       posData.impermanent_loss_data = {};
     }
 
+    posData.cakePrice = cakePrice ? cakePrice.toNumber() : 0;
     positions.push(posData);
   }
 

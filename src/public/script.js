@@ -103,11 +103,33 @@ document.addEventListener('DOMContentLoaded', () => {
             // --- Prepare data for display ---
             const statusClass = position.status === 'IN RANGE' ? 'status-in-range' : 'status-out-of-range';
 
+            let unclaimedFeesHtml = '';
+            if (position.unclaimedFees && position.unclaimedFees.length > 0) {
+                position.unclaimedFees.forEach(fee => {
+                    let amountStr = String(fee.amount);
+                    const feeAmount = parseFloat(amountStr);
+
+                    if (feeAmount > 0) {
+                        const dotIndex = amountStr.indexOf('.');
+                        if (dotIndex !== -1) {
+                            if (amountStr.length > dotIndex + 9) {
+                                amountStr = amountStr.substring(0, dotIndex + 9);
+                            }
+                            amountStr = amountStr.replace(/0+$/, '');
+                            if (amountStr.endsWith('.')) {
+                                amountStr = amountStr.slice(0, -1);
+                            }
+                        }
+                        unclaimedFeesHtml += `<span class="reward-sub-line">(${amountStr} ${fee.symbol})</span>`;
+                    }
+                });
+            }
+
             // Find CAKE rewards for the sub-line
             let cakeRewardAmount = '';
             if (position.rewards && position.rewards.length > 0) {
                 const cakeReward = position.rewards.find(r => r.symbol === 'CAKE');
-                if (cakeReward && cakeReward.amount) {
+                if (cakeReward && cakeReward.amount && parseFloat(cakeReward.amount) > 0) {
                     let amountStr = cakeReward.amount;
                     const dotIndex = amountStr.indexOf('.');
 
@@ -229,8 +251,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="metric">
                             <span class="metric-label" style="font-weight: 500; font-size: 0.9em;">Rewards</span>
                             <div class="metric-value-container">
-                                <span class="metric-value value-positive" style="font-weight: 700; font-size: 1.1em;">$${position.total_rewards_usd}</span>
+                                <span class="metric-value value-positive" style="font-weight: 700; font-size: 1.1em;">${position.total_rewards_usd}</span>
                                 <span class="reward-sub-line">${cakeRewardAmount}</span>
+                                ${unclaimedFeesHtml}
                             </div>
                         </div>
                         <div class="metric">

@@ -189,6 +189,10 @@ async function fetchPositionData(walletAddress) {
       console.log(` • CAKE earned: ${cakeEarned}`);
     }
     posData.rewards = [{ symbol: 'CAKE', amount: cakeEarned }];
+    posData.unclaimedFees = [
+        { symbol: sym0, amount: fees0 },
+        { symbol: sym1, amount: fees1 }
+    ];
     posData.current_balances = `${amount0} ${sym0} & ${amount1} ${sym1}`;
 
     const initialAmount0Human = ethers.utils.formatUnits(pos.initialAmount0, dec0);

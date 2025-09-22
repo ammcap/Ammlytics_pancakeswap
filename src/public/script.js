@@ -107,8 +107,23 @@ document.addEventListener('DOMContentLoaded', () => {
             let cakeRewardAmount = '';
             if (position.rewards && position.rewards.length > 0) {
                 const cakeReward = position.rewards.find(r => r.symbol === 'CAKE');
-                if (cakeReward) {
-                    cakeRewardAmount = `(${cakeReward.amount} CAKE)`;
+                if (cakeReward && cakeReward.amount) {
+                    let amountStr = cakeReward.amount;
+                    const dotIndex = amountStr.indexOf('.');
+
+                    if (dotIndex !== -1) {
+                        // Truncate to 8 decimal places
+                        if (amountStr.length > dotIndex + 9) {
+                            amountStr = amountStr.substring(0, dotIndex + 9);
+                        }
+                        // Remove trailing zeros
+                        amountStr = amountStr.replace(/0+$/, '');
+                        // If we are left with a trailing decimal point, remove it
+                        if (amountStr.endsWith('.')) {
+                            amountStr = amountStr.slice(0, -1);
+                        }
+                    }
+                    cakeRewardAmount = `(${amountStr} CAKE)`;
                 }
             }
 

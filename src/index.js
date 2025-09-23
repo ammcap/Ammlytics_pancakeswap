@@ -141,6 +141,9 @@ async function fetchPositionData(walletAddress) {
     const dec0 = await getTokenDecimals(pos.token0);
     const dec1 = await getTokenDecimals(pos.token1);
 
+    const price0 = await getTokenPriceInUsd(pos.token0);
+    const price1 = await getTokenPriceInUsd(pos.token1);
+
     const priceLower = tickToPrice(pos.tickLower, dec0, dec1);
     const priceUpper = tickToPrice(pos.tickUpper, dec0, dec1);
     const priceLowerInv = new Decimal(1).div(priceUpper);
@@ -190,8 +193,8 @@ async function fetchPositionData(walletAddress) {
     }
     posData.rewards = [{ symbol: 'CAKE', amount: cakeEarned }];
     posData.unclaimedFees = [
-        { symbol: sym0, amount: fees0 },
-        { symbol: sym1, amount: fees1 }
+        { symbol: sym0, amount: fees0, price: price0 ? price0.toNumber() : 0 },
+        { symbol: sym1, amount: fees1, price: price1 ? price1.toNumber() : 0 }
     ];
     posData.current_balances = `${amount0} ${sym0} & ${amount1} ${sym1}`;
 
@@ -272,8 +275,6 @@ async function fetchPositionData(walletAddress) {
       posData.current_price = `${priceCurrentDoc.toSignificantDigits(6)} ${sym0} per ${sym1}`;
 
       // APR Calculation
-      const price0 = await getTokenPriceInUsd(pos.token0);
-      const price1 = await getTokenPriceInUsd(pos.token1);
       const currentUsdValue = new Decimal(amount0).mul(price0).add(new Decimal(amount1).mul(price1));
       const unclaimedFeesUsd = new Decimal(fees0).mul(price0).add(new Decimal(fees1).mul(price1));
       const unclaimedCakeUsd = new Decimal(cakeEarned).mul(cakePrice);

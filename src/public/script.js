@@ -120,7 +120,14 @@ document.addEventListener('DOMContentLoaded', () => {
                                 amountStr = amountStr.slice(0, -1);
                             }
                         }
-                        unclaimedFeesHtml += `<span class="reward-sub-line">(${amountStr} ${fee.symbol})</span>`;
+
+                        let usdValueStr = '';
+                        if (fee.price) {
+                            const usdValue = parseFloat(amountStr) * fee.price;
+                            usdValueStr = ` ($${usdValue.toFixed(2)})`;
+                        }
+                        
+                        unclaimedFeesHtml += `<span class="reward-sub-line">${amountStr} ${fee.symbol}${usdValueStr}</span>`;
                     }
                 });
             }

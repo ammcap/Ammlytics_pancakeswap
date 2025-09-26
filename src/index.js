@@ -144,13 +144,24 @@ async function fetchPositionData(walletAddress) {
     const price0 = await getTokenPriceInUsd(pos.token0);
     const price1 = await getTokenPriceInUsd(pos.token1);
 
-    const priceLower = tickToPrice(pos.tickLower, dec0, dec1);
-    const priceUpper = tickToPrice(pos.tickUpper, dec0, dec1);
-    const priceLowerInv = new Decimal(1).div(priceUpper);
-    const priceUpperInv = new Decimal(1).div(priceLower);
-    posData.price_range_lower = priceLowerInv.toSignificantDigits(6);
-    posData.price_range_upper = priceUpperInv.toSignificantDigits(6);
-    console.log(`Price: Min ${posData.price_range_lower} / Max ${posData.price_range_upper} ${sym0} per ${sym1}`);
+    const priceLowerT1inT0 = tickToPrice(pos.tickLower, dec0, dec1);
+    const priceUpperT1inT0 = tickToPrice(pos.tickUpper, dec0, dec1);
+    const priceLowerT0inT1 = new Decimal(1).div(priceUpperT1inT0);
+    const priceUpperT0inT1 = new Decimal(1).div(priceLowerT1inT0);
+
+    // Determine if we should invert the price quote. Default is to show price of token0 in terms of token1.
+    // For WETH/cbBTC, user wants to see cbBTC per WETH, which is token1 in terms of token0 (the non-inverted price).
+    const invertPrice = !(sym0 === 'WETH' && sym1 === 'cbBTC');
+    const priceLabel = invertPrice ? `${sym0} per ${sym1}` : `${sym1} per ${sym0}`;
+
+    if (invertPrice) {
+      posData.price_range_lower = priceLowerT0inT1.toSignificantDigits(6);
+      posData.price_range_upper = priceUpperT0inT1.toSignificantDigits(6);
+    } else {
+      posData.price_range_lower = priceLowerT1inT0.toSignificantDigits(6);
+      posData.price_range_upper = priceUpperT1inT0.toSignificantDigits(6);
+    }
+    console.log(`Price: Min ${posData.price_range_lower} / Max ${posData.price_range_upper} ${priceLabel}`);
     console.log(`Staked in farm: ${staked ? 'Yes' : 'No'}`);
     const poolAddr = await getPoolAddress(pos.token0, pos.token1, pos.feeTier);
     console.log(`Pool: ${poolAddr}`);
@@ -206,10 +217,16 @@ async function fetchPositionData(walletAddress) {
 
     const initialPoolState = await fetchPoolState(poolAddr, pos.tickLower, pos.tickUpper, pos.mintBlock);
     const initialTick = initialPoolState.slot0.tick;
-    const initialPrice = tickToPrice(initialTick, dec0, dec1);  // Price of token1 in token0
-    const initialPriceInv = new Decimal(1).div(initialPrice);
-    console.log(`Initial price: ${initialPriceInv.toSignificantDigits(6)} ${sym0} per ${sym1}`);
-    posData.initial_state.price = `${initialPriceInv.toSignificantDigits(6)} ${sym0} per ${sym1}`;
+    const initialPriceT1inT0 = tickToPrice(initialTick, dec0, dec1);  // Price of token1 in token0
+    const initialPriceT0inT1 = new Decimal(1).div(initialPriceT1inT0);
+
+    if (invertPrice) {
+      console.log(`Initial price: ${initialPriceT0inT1.toSignificantDigits(6)} ${priceLabel}`);
+      posData.initial_state.price = `${initialPriceT0inT1.toSignificantDigits(6)} ${priceLabel}`;
+    } else {
+      console.log(`Initial price: ${initialPriceT1inT0.toSignificantDigits(6)} ${priceLabel}`);
+      posData.initial_state.price = `${initialPriceT1inT0.toSignificantDigits(6)} ${priceLabel}`;
+    }
 
     let initialUsd = pos.initialUsd;
     if (!initialUsd || initialUsd.isZero()) {
@@ -269,10 +286,13 @@ async function fetchPositionData(walletAddress) {
       const cakePrice = await fetchCakePrice();
       console.log(`CAKE price: ${cakePrice.toFixed(4)}`);
 
-      // Compute current price from pool state (cbBTC / USDC, small)
-      const currentPriceCode = tickToPrice(poolState.slot0.tick, dec0, dec1);
-      const priceCurrentDoc = new D(1).div(currentPriceCode);
-      posData.current_price = `${priceCurrentDoc.toSignificantDigits(6)} ${sym0} per ${sym1}`;
+      const currentPriceT1inT0 = tickToPrice(poolState.slot0.tick, dec0, dec1);
+      const currentPriceT0inT1 = new D(1).div(currentPriceT1inT0);
+      if (invertPrice) {
+        posData.current_price = `${currentPriceT0inT1.toSignificantDigits(6)} ${priceLabel}`;
+      } else {
+        posData.current_price = `${currentPriceT1inT0.toSignificantDigits(6)} ${priceLabel}`;
+      }
 
       // APR Calculation
       const currentUsdValue = new Decimal(amount0).mul(price0).add(new Decimal(amount1).mul(price1));
@@ -305,10 +325,11 @@ async function fetchPositionData(walletAddress) {
 
       console.log(`--- Impermanent Loss and Breakeven Analysis ---`);
 
-      // Define prices in "doc" terms (USDC per cbBTC, large numbers)
-      const priceLowerDoc = priceLowerInv;  // Printed Min (e.g., 109461)
-      const priceUpperDoc = priceUpperInv;  // Printed Max (e.g., 116229)
-      const priceInitialDoc = initialPriceInv;
+      // Define prices for IL calculation. These MUST be price of token0 in terms of token1.
+      const priceLowerDoc = priceLowerT0inT1;
+      const priceUpperDoc = priceUpperT0inT1;
+      const priceInitialDoc = initialPriceT0inT1;
+      const priceCurrentDoc = currentPriceT0inT1;
       
       // Define amounts (A = token1/volatile, B = token0/stable-ish)
       const amountAInitial = new D(initialAmount1Human);  // cbBTC initial
@@ -366,10 +387,14 @@ async function fetchPositionData(walletAddress) {
       const ilPercentLower = ilDollarLower.div(holdValueLower).mul(100);
 
       // Output IL results
-      console.log(`Current Price: ${priceCurrentDoc.toSignificantDigits(6)} ${sym0} per ${sym1}`);
+      const priceCurrentDisplay = invertPrice ? priceCurrentDoc : currentPriceT1inT0;
+      const priceUpperDisplay = invertPrice ? priceUpperDoc : priceUpperT1inT0;
+      const priceLowerDisplay = invertPrice ? priceLowerDoc : priceLowerT1inT0;
+
+      console.log(`Current Price: ${priceCurrentDisplay.toSignificantDigits(6)} ${priceLabel}`);
       console.log(`Current IL: ${ilPercent.toFixed(3)}% ($${ilDollar.toFixed(2)})`);
-      console.log(`IL at High End (${priceUpperDoc.toSignificantDigits(6)} ${sym0} per ${sym1}): ${ilPercentUpper.toFixed(3)}% ($${ilDollarUpper.toFixed(2)})`);
-      console.log(`IL at Low End (${priceLowerDoc.toSignificantDigits(6)} ${sym0} per ${sym1}): ${ilPercentLower.toFixed(3)}% ($${ilDollarLower.toFixed(2)})`);
+      console.log(`IL at High End (${priceUpperDisplay.toSignificantDigits(6)} ${priceLabel}): ${ilPercentUpper.toFixed(3)}% ($${ilDollarUpper.toFixed(2)})`);
+      console.log(`IL at Low End (${priceLowerDisplay.toSignificantDigits(6)} ${priceLabel}): ${ilPercentLower.toFixed(3)}% ($${ilDollarLower.toFixed(2)})`);
 
       // Step 6: Breakeven Time (using accrued rewards for precision)
       let rewardsPerSecond = new D(0);

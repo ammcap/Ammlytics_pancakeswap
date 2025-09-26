@@ -351,8 +351,8 @@ async function fetchPositionData(walletAddress) {
       const sUpper = sb;
       const amountAAtUpper = new D(0);
       const amountBAtUpper = l.mul(sUpper.sub(sa));
-      const lpValueUpper = amountBAtUpper;  // + 0 * price_upper_doc
-      const holdValueUpper = amountBInitial.add(amountAInitial.mul(priceUpperDoc));
+      const lpValueUpper = amountBAtUpper.mul(price0);  // Convert to USD
+      const holdValueUpper = amountBInitial.add(amountAInitial.mul(priceUpperDoc)).mul(price0); // Convert to USD
       const ilDollarUpper = lpValueUpper.sub(holdValueUpper);
       const ilPercentUpper = ilDollarUpper.div(holdValueUpper).mul(100);
 
@@ -360,16 +360,16 @@ async function fetchPositionData(walletAddress) {
       const sLower = sa;
       const amountBAtLower = new D(0);
       const amountAAtLower = l.mul(new D(1).div(sLower).sub(new D(1).div(sb)));
-      const lpValueLower = amountAAtLower.mul(priceLowerDoc);  // + 0
-      const holdValueLower = amountBInitial.add(amountAInitial.mul(priceLowerDoc));
+      const lpValueLower = amountAAtLower.mul(priceLowerDoc).mul(price0); // Convert to USD
+      const holdValueLower = amountBInitial.add(amountAInitial.mul(priceLowerDoc)).mul(price0); // Convert to USD
       const ilDollarLower = lpValueLower.sub(holdValueLower);
       const ilPercentLower = ilDollarLower.div(holdValueLower).mul(100);
 
       // Output IL results
       console.log(`Current Price: ${priceCurrentDoc.toSignificantDigits(6)} ${sym0} per ${sym1}`);
       console.log(`Current IL: ${ilPercent.toFixed(3)}% ($${ilDollar.toFixed(2)})`);
-      console.log(`IL at High End (${priceUpperDoc.toFixed(0)} ${sym0} per ${sym1}): ${ilPercentUpper.toFixed(3)}% ($${ilDollarUpper.toFixed(2)})`);
-      console.log(`IL at Low End (${priceLowerDoc.toFixed(0)} ${sym0} per ${sym1}): ${ilPercentLower.toFixed(3)}% ($${ilDollarLower.toFixed(2)})`);
+      console.log(`IL at High End (${priceUpperDoc.toSignificantDigits(6)} ${sym0} per ${sym1}): ${ilPercentUpper.toFixed(3)}% ($${ilDollarUpper.toFixed(2)})`);
+      console.log(`IL at Low End (${priceLowerDoc.toSignificantDigits(6)} ${sym0} per ${sym1}): ${ilPercentLower.toFixed(3)}% ($${ilDollarLower.toFixed(2)})`);
 
       // Step 6: Breakeven Time (using accrued rewards for precision)
       let rewardsPerSecond = new D(0);
@@ -386,7 +386,7 @@ async function fetchPositionData(walletAddress) {
           net_gain_loss: totalRewardsUsd.add(ilDollar).toFixed(2)
         },
         upper_bound: {
-          price: priceUpperDoc.toFixed(0),
+          price: priceUpperDoc.toSignificantDigits(6),
           il_usd: `$${ilDollarUpper.toFixed(2)}`,
           il_perc: `${ilPercentUpper.toFixed(3)}%`,
           breakeven_time: "N/A",  // Default
@@ -394,7 +394,7 @@ async function fetchPositionData(walletAddress) {
           fees_vs_il: "N/A"  // Default
         },
         lower_bound: {
-          price: priceLowerDoc.toFixed(0),
+          price: priceLowerDoc.toSignificantDigits(6),
           il_usd: `$${ilDollarLower.toFixed(2)}`,
           il_perc: `${ilPercentLower.toFixed(3)}%`,
           breakeven_time: "N/A",  // Default

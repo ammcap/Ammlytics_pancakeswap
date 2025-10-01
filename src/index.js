@@ -310,6 +310,7 @@ async function fetchPositionData(walletAddress) {
 
       console.log(`Estimated APR: ${apr.toFixed(2)}%`);
       posData.annualized_apr = `${apr.toFixed(2)}%`;
+      posData.price_label = priceLabel;
 
       // Calculation details
       const formattedTime = formatTime(timeElapsed);
@@ -386,11 +387,12 @@ async function fetchPositionData(walletAddress) {
       const ilDollarLower = lpValueLower.sub(holdValueLower);
       const ilPercentLower = ilDollarLower.div(holdValueLower).mul(100);
 
-      // Output IL results
+      // Define display prices before they are used in posData and console.log
       const priceCurrentDisplay = invertPrice ? priceCurrentDoc : currentPriceT1inT0;
       const priceUpperDisplay = invertPrice ? priceUpperDoc : priceUpperT1inT0;
       const priceLowerDisplay = invertPrice ? priceLowerDoc : priceLowerT1inT0;
 
+      // Output IL results
       console.log(`Current Price: ${priceCurrentDisplay.toSignificantDigits(6)} ${priceLabel}`);
       console.log(`Current IL: ${ilPercent.toFixed(3)}% ($${ilDollar.toFixed(2)})`);
       console.log(`IL at High End (${priceUpperDisplay.toSignificantDigits(6)} ${priceLabel}): ${ilPercentUpper.toFixed(3)}% ($${ilDollarUpper.toFixed(2)})`);
@@ -411,7 +413,7 @@ async function fetchPositionData(walletAddress) {
           net_gain_loss: totalRewardsUsd.add(ilDollar).toFixed(2)
         },
         upper_bound: {
-          price: priceUpperDoc.toSignificantDigits(6),
+          price: priceUpperDisplay.toSignificantDigits(6),
           il_usd: `$${ilDollarUpper.toFixed(2)}`,
           il_perc: `${ilPercentUpper.toFixed(3)}%`,
           breakeven_time: "N/A",  // Default
@@ -419,7 +421,7 @@ async function fetchPositionData(walletAddress) {
           fees_vs_il: "N/A"  // Default
         },
         lower_bound: {
-          price: priceLowerDoc.toSignificantDigits(6),
+          price: priceLowerDisplay.toSignificantDigits(6),
           il_usd: `$${ilDollarLower.toFixed(2)}`,
           il_perc: `${ilPercentLower.toFixed(3)}%`,
           breakeven_time: "N/A",  // Default
